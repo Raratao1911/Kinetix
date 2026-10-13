@@ -1,0 +1,76 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: kinetix-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Kinetix@12345"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Kinetix@12345 -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: kinetix-sqlserver-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./back_end/src/docs/database:/scripts
+    command: >
+      /bin/bash -c "/opt/mssql-tools18/bin/sqlcmd
+      -S sqlserver
+      -U sa
+      -P Kinetix@12345
+      -C
+      -i /scripts/kinetix.sql"
+    restart: "no"
+
+  backend:
+    image: maven:3.9.11-eclipse-temurin-21
+    container_name: kinetix-backend
+    working_dir: /app
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+    environment:
+      KINETIX_DB_URL: "jdbc:sqlserver://sqlserver:1433;databaseName=Kinetix;encrypt=true;trustServerCertificate=true"
+      KINETIX_DB_USERNAME: "sa"
+      KINETIX_DB_PASSWORD: "Kinetix@12345"
+      KINETIX_JWT_SECRET_BASE64: "S2luZXRpeEp3dFNlY3JldEtleV8yMDI2XzMyYnl0ZXM="
+      KINETIX_DATA_ENCRYPTION_KEY: "S2luZXRpeERhdGFFbmNSZXBvS2V5XzIwMjZfMzJieXRlcw=="
+      KINETIX_WEB_ORIGINS: "http://localhost:5173"
+    volumes:
+      - ./back_end:/app
+      - backend-maven-cache:/root/.m2
+    command: mvn spring-boot:run
+    ports:
+      - "8080:8080"
+
+  web:
+    image: node:22-alpine
+    container_name: kinetix-web
+    working_dir: /app
+    depends_on:
+      - backend
+    environment:
+      VITE_PROXY_TARGET: "http://backend:8080"
+    volumes:
+      - ./web:/app
+      - web-node-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+
+volumes:
+  sqlserver-data:
+  web-node-modules:
+  backend-maven-cache:
