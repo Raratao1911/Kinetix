@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Save, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import Brand from "../components/Brand.jsx";
@@ -42,7 +43,11 @@ export default function PrescritorPage() {
   };
 
   async function handleSalvar() {
-    if (!selectedPaciente || plano.length === 0) return alert("Selecione um paciente e adicione exercícios.");
+    setError("");
+    if (!selectedPaciente || !titulo.trim() || plano.length === 0 || plano.some(item => !item.exercicioId || Number(item.series) < 1 || Number(item.repeticoes) < 1 || (item.duracaoSegundos && Number(item.duracaoSegundos) < 1))) {
+      setError("Preencha o título, selecione um paciente e confira os exercícios e as quantidades.");
+      return;
+    }
     
     setLoading(true);
     try {
@@ -76,6 +81,7 @@ export default function PrescritorPage() {
       <header className="border-b border-slate-200 bg-sky text-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
         <div className="mx-auto flex min-h-36 max-w-6xl items-center px-5 py-2">
           <Brand inverse />
+          <Link to="/dashboard" className="ml-auto text-sm font-medium">Minha conta</Link>
         </div>
       </header>
 
@@ -117,13 +123,13 @@ export default function PrescritorPage() {
             onChange={(e) => setSelectedPaciente(e.target.value)}
           >
             <option value="">Selecione um paciente...</option>
-            {pacientes.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
+            {pacientes.map(p => <option key={p.usuarioId} value={p.usuarioId}>{p.nome}</option>)}
           </select>
         </div>
 
         <div className="space-y-4">
           {plano.map((item, index) => (
-            <div key={index} className="flex gap-4 items-end bg-slate-50 p-4 rounded border border-slate-200 dark:border-darkTheme-border dark:bg-darkTheme-surface">
+            <div key={index} className="flex flex-wrap gap-4 items-end bg-slate-50 p-4 rounded border border-slate-200 dark:border-darkTheme-border dark:bg-darkTheme-surface">
               <div className="flex-1">
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1 dark:text-darkTheme-muted">Exercício</label>
                 <select 
@@ -147,7 +153,7 @@ export default function PrescritorPage() {
                 <label className="block text-xs font-bold uppercase text-slate-500 mb-1 dark:text-darkTheme-muted">Tempo (s)</label>
                 <input type="number" className={fieldClass} value={item.duracaoSegundos} onChange={(e) => updateExercicio(index, "duracaoSegundos", e.target.value)} />
               </div>
-              <button onClick={() => removeExercicio(index)} className="p-2 text-red-500 hover:bg-red-50 rounded dark:hover:bg-darkTheme-danger">
+              <button title="Remover exercício" aria-label="Remover exercício" onClick={() => removeExercicio(index)} className="p-2 text-red-500 hover:bg-red-50 rounded dark:hover:bg-darkTheme-danger">
                 <Trash2 size={20} />
               </button>
             </div>

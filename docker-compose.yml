@@ -31,7 +31,7 @@ services:
       -U sa
       -P Kinetix@12345
       -C
-      -i /scripts/kinetix.sql"
+      -b -i /scripts/kinetix.sql"
     restart: "no"
 
   backend:
@@ -46,7 +46,7 @@ services:
       KINETIX_DB_USERNAME: "sa"
       KINETIX_DB_PASSWORD: "Kinetix@12345"
       KINETIX_JWT_SECRET_BASE64: "S2luZXRpeEp3dFNlY3JldEtleV8yMDI2XzMyYnl0ZXM="
-      KINETIX_DATA_ENCRYPTION_KEY: "S2luZXRpeERhdGFFbmNSZXBvS2V5XzIwMjZfMzJieXRlcw=="
+      KINETIX_DATA_ENCRYPTION_KEY: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
       KINETIX_WEB_ORIGINS: "http://localhost:5173"
     volumes:
       - ./back_end:/app
@@ -66,7 +66,7 @@ services:
     volumes:
       - ./web:/app
       - web-node-modules:/app/node_modules
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
     ports:
       - "5173:5173"
 

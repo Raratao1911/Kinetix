@@ -10,8 +10,9 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import PrescritorPage from "./pages/PrescritorPage.jsx";
 
-function PrivateRoute({ children }) {
+function PrivateRoute({ children, perfil }) {
   const { session } = useAuth();
+  if (session && perfil && session.perfil !== perfil) return <Navigate to="/dashboard" replace />;
   return session ? children : <Navigate to="/login" replace />;
 }
 
@@ -67,7 +68,7 @@ function App() {
           <Route
             path="/prescritor"
             element={
-              <PrivateRoute>
+              <PrivateRoute perfil="FISIO">
                 <PrescritorPage />
               </PrivateRoute>
             }

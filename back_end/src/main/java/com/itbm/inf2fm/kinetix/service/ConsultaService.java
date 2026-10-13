@@ -92,14 +92,15 @@ public class ConsultaService {
             for (DisponibilidadeSemanal d : disponibilidades.findByFisioterapeuta_Usuario_IdAndDiaSemanaAndAtivaTrue(
                 fisio.usuario.id, date.getDayOfWeek().getValue())) {
                 if (date.isBefore(d.vigenciaInicio) || (d.vigenciaFim != null && date.isAfter(d.vigenciaFim))) continue;
-                LocalTime hora = d.horaInicio;
-                while (!hora.plusMinutes(servico.duracaoMinutos).isAfter(d.horaFim)) {
-                    OffsetDateTime inicio = date.atTime(hora).atZone(zoneId).toOffsetDateTime();
+                LocalDateTime horario = date.atTime(d.horaInicio);
+                LocalDateTime limite = date.atTime(d.horaFim);
+                while (!horario.plusMinutes(servico.duracaoMinutos).isAfter(limite)) {
+                    OffsetDateTime inicio = horario.atZone(zoneId).toOffsetDateTime();
                     OffsetDateTime fim = inicio.plusMinutes(servico.duracaoMinutos);
                     if (inicio.isAfter(OffsetDateTime.now()) &&
                         !bloqueios.existsByFisioterapeuta_Usuario_IdAndInicioLessThanAndFimGreaterThan(fisio.usuario.id, fim, inicio) &&
                         !consultas.existeConflito(fisio.usuario.id, inicio, fim)) slots.add(inicio);
-                    hora = hora.plusMinutes(servico.duracaoMinutos);
+                    horario = horario.plusMinutes(servico.duracaoMinutos);
                 }
             }
         }

@@ -10,6 +10,8 @@ target/
 # Node / frontend
 node_modules/
 dist/
+test-results/
+playwright-report/
 build/
 .expo/
 
