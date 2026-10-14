@@ -1,6 +1,8 @@
 package com.itbm.inf2fm.kinetix.model.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -15,6 +17,7 @@ public class Avaliacao {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "fisioterapeuta_id")
     public Fisioterapeuta fisioterapeuta;
     @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.TINYINT)
     public int nota;
     @Column(length = 1000)
     public String comentario;

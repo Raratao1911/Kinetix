@@ -1,6 +1,8 @@
 package com.itbm.inf2fm.kinetix.model.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +17,7 @@ public class Fisioterapeuta {
     @Column(name = "crefito_numero", nullable = false, length = 30)
     public String crefitoNumero;
     @Column(name = "crefito_uf", nullable = false, length = 2)
+    @JdbcTypeCode(SqlTypes.CHAR)
     public String crefitoUf;
     @Column(name = "crefito_verificado", nullable = false)
     public boolean crefitoVerificado;
@@ -33,8 +36,10 @@ public class Fisioterapeuta {
     @Column(nullable = false, length = 100)
     public String cidade;
     @Column(nullable = false, length = 2)
+    @JdbcTypeCode(SqlTypes.CHAR)
     public String uf;
     @Column(length = 9)
+    @JdbcTypeCode(SqlTypes.CHAR)
     public String cep;
     @Column(precision = 9, scale = 6)
     public BigDecimal latitude;

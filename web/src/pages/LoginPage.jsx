@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Acesse sua área de reabilitação"
-      subtitle="Clínicas e fisioterapeutas acompanham pacientes; pacientes visualizam consultas e agendamentos por aqui."
+      subtitle="Bem-vindo ao KINETIX."
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>

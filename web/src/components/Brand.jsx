@@ -8,7 +8,7 @@ export default function Brand({ inverse = false, lightBackground = "bg-sky" }) {
 
   return (
     <div className="flex shrink-0 items-center gap-3">
-      <span className={`flex h-36 w-36 shrink-0 items-center justify-center overflow-hidden rounded ${lightBackground} dark:bg-transparent`}>
+      <span className={`flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded ${lightBackground} dark:bg-transparent sm:h-36 sm:w-36`}>
         <img
           className="block h-[180%] w-[180%] max-w-none object-contain dark:hidden"
           src="/logolight.png"

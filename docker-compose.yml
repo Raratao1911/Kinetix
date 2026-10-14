@@ -47,7 +47,7 @@ services:
       KINETIX_DB_PASSWORD: "Kinetix@12345"
       KINETIX_JWT_SECRET_BASE64: "S2luZXRpeEp3dFNlY3JldEtleV8yMDI2XzMyYnl0ZXM="
       KINETIX_DATA_ENCRYPTION_KEY: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
-      KINETIX_WEB_ORIGINS: "http://localhost:5173"
+      KINETIX_WEB_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
     volumes:
       - ./back_end:/app
       - backend-maven-cache:/root/.m2

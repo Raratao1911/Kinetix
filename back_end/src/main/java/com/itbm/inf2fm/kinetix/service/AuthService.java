@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class AuthService {
@@ -81,6 +82,8 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse entrar(LoginRequest request) {
+        if (request.senha().getBytes(StandardCharsets.UTF_8).length > 72)
+            throw ErroNegocio.naoAutorizado("E-mail ou senha inválidos.");
         Usuario usuario = usuarios.findByEmailIgnoreCase(request.email().trim())
             .filter(u -> u.ativo)
             .orElseThrow(() -> ErroNegocio.naoAutorizado("E-mail ou senha inválidos."));
@@ -96,6 +99,8 @@ public class AuthService {
 
     private Usuario novoUsuario(String nome, String email, String senha, String telefone,
         String documento, String foto, PerfilUsuario perfil) {
+        if (senha.getBytes(StandardCharsets.UTF_8).length > 72)
+            throw ErroNegocio.invalido("A senha deve ter no máximo 72 bytes em UTF-8.");
         Usuario usuario = new Usuario();
         usuario.nome = nome.trim();
         usuario.email = email.trim().toLowerCase();

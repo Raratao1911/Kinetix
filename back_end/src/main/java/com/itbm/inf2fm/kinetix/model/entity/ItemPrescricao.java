@@ -2,6 +2,8 @@ package com.itbm.inf2fm.kinetix.model.entity;
 
 import com.itbm.inf2fm.kinetix.config.CriptografiaDadosConverter;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "itens_prescricao")
@@ -13,8 +15,11 @@ public class ItemPrescricao {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "exercicio_id")
     public Exercicio exercicio;
     @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     public int ordem;
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     public Integer series;
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     public Integer repeticoes;
     @Column(name = "duracao_segundos")
     public Integer duracaoSegundos;

@@ -1,6 +1,8 @@
 package com.itbm.inf2fm.kinetix.model.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,6 +17,7 @@ public class Servico {
     @Column(length = 500)
     public String descricao;
     @Column(name = "duracao_minutos", nullable = false)
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     public int duracaoMinutos;
     @Column(nullable = false, precision = 10, scale = 2)
     public BigDecimal preco;

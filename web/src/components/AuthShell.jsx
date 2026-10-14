@@ -16,7 +16,7 @@ export default function AuthShell({ title, subtitle, children }) {
 
           <div className="flex items-center gap-3 text-sm text-white/75">
             <ShieldCheck size={20} className="text-mint" />
-            <span>Consentimento LGPD e acesso por perfil desde o cadastro.</span>
+            <span>Movimento e cuidado em cada etapa.</span>
           </div>
         </section>
 

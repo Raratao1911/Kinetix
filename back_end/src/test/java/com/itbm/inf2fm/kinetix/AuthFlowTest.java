@@ -160,6 +160,29 @@ class AuthFlowTest {
     }
 
     @Test
+    void preflightAceitaAsDuasOrigensLocais() throws Exception {
+        for (String origin : new String[] { "http://localhost:5173", "http://127.0.0.1:5173" }) {
+            mvc.perform(options("/api/v1/auth/login").header("Origin", origin)
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "Content-Type"))
+                .andExpect(status().isOk()).andExpect(header().string("Access-Control-Allow-Origin", origin));
+        }
+    }
+
+    @Test
+    void senhaAcimaDoLimiteBcryptRetornaErroControlado() throws Exception {
+        for (String senha : new String[] { "a".repeat(73), "\u00e9".repeat(37) }) {
+            mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
+                .content(json.writeValueAsString(Map.of("nome", "Teste", "email", "teste@example.com", "senha", senha))))
+                .andExpect(status().isBadRequest());
+            mvc.perform(post("/api/v1/auth/login").contentType("application/json")
+                .content(json.writeValueAsString(Map.of("email", "teste@example.com", "senha", senha))))
+                .andExpect(status().isUnauthorized());
+        }
+        verify(usuarios, never()).save(any(Usuario.class));
+    }
+
+    @Test
     void cadastroInvalidoETokenInvalido() throws Exception {
         mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
             .content("""

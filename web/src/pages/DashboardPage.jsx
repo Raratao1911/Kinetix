@@ -53,7 +53,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-ink dark:bg-darkTheme-bg dark:text-darkTheme-text">
       <header className="border-b border-slate-200 bg-sky text-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
-        <div className="mx-auto flex min-h-36 max-w-6xl items-center justify-between gap-4 px-5 py-2">
+        <div className="mx-auto flex min-h-36 max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-2">
           <Brand inverse />
           <button className="inline-flex h-10 items-center gap-2 rounded border border-slate-300 px-3 text-sm font-medium dark:border-darkTheme-border dark:text-darkTheme-text" onClick={logout}>
             <LogOut size={17} />

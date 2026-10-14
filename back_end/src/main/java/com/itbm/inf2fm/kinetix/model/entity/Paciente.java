@@ -1,6 +1,8 @@
 package com.itbm.inf2fm.kinetix.model.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 
 @Entity
@@ -17,6 +19,7 @@ public class Paciente {
     @Column(length = 100)
     public String bairro;
     @Column(length = 2)
+    @JdbcTypeCode(SqlTypes.CHAR)
     public String uf;
     protected Paciente() {}
     public Paciente(Usuario usuario) { this.usuario = usuario; }

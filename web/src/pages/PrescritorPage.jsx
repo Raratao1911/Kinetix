@@ -79,7 +79,7 @@ export default function PrescritorPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-ink dark:bg-darkTheme-bg dark:text-darkTheme-text">
       <header className="border-b border-slate-200 bg-sky text-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
-        <div className="mx-auto flex min-h-36 max-w-6xl items-center px-5 py-2">
+        <div className="mx-auto flex min-h-36 max-w-6xl flex-wrap items-center gap-4 px-5 py-2">
           <Brand inverse />
           <Link to="/dashboard" className="ml-auto text-sm font-medium">Minha conta</Link>
         </div>

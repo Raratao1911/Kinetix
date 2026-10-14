@@ -2,6 +2,8 @@ package com.itbm.inf2fm.kinetix.model.entity;
 
 import com.itbm.inf2fm.kinetix.model.enums.StatusConsulta;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
@@ -27,6 +29,7 @@ public class Consulta {
     @Column(nullable = false, precision = 10, scale = 2)
     public BigDecimal preco;
     @Column(name = "duracao_minutos", nullable = false)
+    @JdbcTypeCode(SqlTypes.SMALLINT)
     public int duracaoMinutos;
     @Column(name = "motivo_cancelamento", length = 500)
     public String motivoCancelamento;

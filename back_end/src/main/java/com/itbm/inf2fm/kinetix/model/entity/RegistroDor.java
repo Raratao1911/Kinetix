@@ -2,6 +2,8 @@ package com.itbm.inf2fm.kinetix.model.entity;
 
 import com.itbm.inf2fm.kinetix.config.CriptografiaDadosConverter;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -14,6 +16,7 @@ public class RegistroDor {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "consulta_id")
     public Consulta consulta;
     @Column(name = "escala_eva", nullable = false)
+    @JdbcTypeCode(SqlTypes.TINYINT)
     public int escalaEva;
     @Convert(converter = CriptografiaDadosConverter.class)
     @Column(name = "observacao_enc", columnDefinition = "nvarchar(max)")

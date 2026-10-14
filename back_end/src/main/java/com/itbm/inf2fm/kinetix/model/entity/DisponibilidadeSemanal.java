@@ -1,6 +1,8 @@
 package com.itbm.inf2fm.kinetix.model.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -12,6 +14,7 @@ public class DisponibilidadeSemanal {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "fisioterapeuta_id")
     public Fisioterapeuta fisioterapeuta;
     @Column(name = "dia_semana", nullable = false)
+    @JdbcTypeCode(SqlTypes.TINYINT)
     public int diaSemana;
     @Column(name = "hora_inicio", nullable = false)
     public LocalTime horaInicio;

@@ -23,12 +23,12 @@ public final class ApiDtos {
     public record ExercicioResumo(Long id, String nome, String descricao, String videoUrl) {}
     public record RegisterPatientRequest(
         @NotBlank @Size(max=120) String nome, @NotBlank @Email @Size(max=254) String email,
-        @NotBlank @Size(min=8,max=100) String senha, @Size(max=30) String telefone,
+        @NotBlank @Size(min=8,max=72) String senha, @Size(max=30) String telefone,
         @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl,
         LocalDate dataNascimento, @Size(max=100) String cidade, @Size(max=100) String bairro, @Size(max=2) String uf) {}
     public record RegisterPhysioRequest(
         @NotBlank @Size(max=120) String nome, @NotBlank @Email @Size(max=254) String email,
-        @NotBlank @Size(min=8,max=100) String senha, @Size(max=30) String telefone,
+        @NotBlank @Size(min=8,max=72) String senha, @Size(max=30) String telefone,
         @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl,
         @NotBlank @Size(max=30) String crefitoNumero, @NotBlank @Size(min=2,max=2) String crefitoUf,
         @Size(max=160) String nomeClinica, @Size(max=1200) String apresentacao,
@@ -80,8 +80,8 @@ public final class ApiDtos {
         OffsetDateTime registradoEm) {}
     public record RegistroDorResumo(Long id, Long pacienteId, Long consultaId, int escalaEva,
         String observacao, OffsetDateTime registradoEm) {}
-    public record ItemPrescricaoRequest(@NotNull Long exercicioId, @Min(1) int ordem,
-        @Min(1) Integer series, @Min(1) Integer repeticoes, @Min(1) Integer duracaoSegundos,
+    public record ItemPrescricaoRequest(@NotNull Long exercicioId, @Min(1) @Max(32767) int ordem,
+        @Min(1) @Max(32767) Integer series, @Min(1) @Max(32767) Integer repeticoes, @Min(1) Integer duracaoSegundos,
         @Size(max=160) String frequencia, @Size(max=4000) String orientacoes) {}
     public record PrescricaoRequest(@NotBlank @Size(max=160) String titulo, @Size(max=8000) String orientacoes,
         @NotNull LocalDate inicio, LocalDate fim, Long consultaId, @NotEmpty List<@Valid ItemPrescricaoRequest> itens) {}

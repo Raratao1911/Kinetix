@@ -88,7 +88,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Crie uma conta KINETIX"
-      subtitle="O cadastro define o perfil de acesso e registra o consentimento para tratamento dos dados."
+      subtitle="Seu cuidado começa aqui."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -109,7 +109,7 @@ export default function RegisterPage() {
 
           <label className="block">
             <span className={labelClass}>Senha</span>
-            <input className={fieldClass} type="password" value={form.senha} onChange={(event) => update("senha", event.target.value)} required minLength={8} />
+            <input className={fieldClass} type="password" value={form.senha} onChange={(event) => update("senha", event.target.value)} required minLength={8} maxLength={72} />
           </label>
 
           <label className="block">

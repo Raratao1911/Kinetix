@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const session = perfil => ({ usuarioId: 7, nome: 'Conta Teste', perfil, token: 'token-de-teste', tipoToken: 'Bearer', expiraEm: new Date(Date.now() + 3600000).toISOString() });
 
 async function mockApi(page, perfil = 'PACIENTE') {
-  await page.route('**/api/**', route => {
+  await page.route('**/api/v1/**', route => {
     const path = new URL(route.request().url()).pathname;
     let body = [];
     let status = 200;
@@ -30,10 +30,28 @@ test('cadastro de paciente envia o contrato correto', async ({ page }) => {
   await page.getByLabel('Nome', { exact: true }).fill('Paciente Teste');
   await page.getByLabel('Email', { exact: true }).fill('teste@example.com');
   await page.getByLabel('Senha', { exact: true }).fill('Senha123!');
-  await page.getByRole('checkbox').check();
+  await page.getByRole('checkbox', { name: /Aceito os termos/ }).check();
   const request = page.waitForRequest(r => r.url().endsWith('/api/v1/auth/pacientes'));
   await page.getByRole('button', { name: 'Cadastrar', exact: true }).click();
   expect((await request).postDataJSON()).toMatchObject({ nome: 'Paciente Teste', email: 'teste@example.com' });
+  await expect(page).toHaveURL(/login$/);
+});
+
+test('cadastro de fisioterapeuta envia CREFITO e localizacao', async ({ page }) => {
+  await mockApi(page, 'FISIO');
+  await page.goto('/cadastro');
+  await page.getByRole('combobox', { name: 'Perfil', exact: true }).selectOption('FISIO');
+  await page.getByLabel('Nome', { exact: true }).fill('Fisio Teste');
+  await page.getByLabel('Email', { exact: true }).fill('fisio@example.com');
+  await page.getByLabel('Senha', { exact: true }).fill('Senha123!');
+  await page.getByLabel('CREFITO', { exact: true }).fill('12345');
+  await page.getByLabel('UF do CREFITO', { exact: true }).fill('SP');
+  await page.getByLabel('Cidade', { exact: true }).fill('Barueri');
+  await page.getByLabel('UF', { exact: true }).fill('SP');
+  await page.getByRole('checkbox', { name: /Aceito os termos/ }).check();
+  const request = page.waitForRequest(r => r.url().endsWith('/api/v1/auth/fisioterapeutas'));
+  await page.getByRole('button', { name: 'Cadastrar', exact: true }).click();
+  expect((await request).postDataJSON()).toMatchObject({ crefitoNumero: '12345', crefitoUf: 'SP', cidade: 'Barueri', uf: 'SP' });
   await expect(page).toHaveURL(/login$/);
 });
 
@@ -83,7 +101,9 @@ test('prescritor usa usuarioId e envia os itens', async ({ page }) => {
 test('formularios e painel cabem na tela', async ({ page }, testInfo) => {
   for (const path of ['/login', '/cadastro']) {
     await page.goto(path);
+    await expect(page.getByRole('button', { name: path === '/login' ? 'Entrar' : 'Cadastrar', exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(`${path.slice(1)}.png`), fullPage: true });
   }
   await login(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
