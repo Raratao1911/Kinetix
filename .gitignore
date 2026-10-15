@@ -23,6 +23,7 @@ build/
 
 # Logs
 *.log
+**/.github/modernize/
 
 # OS
 .DS_Store

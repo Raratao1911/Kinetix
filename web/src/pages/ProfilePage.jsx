@@ -16,7 +16,7 @@ function toForm(data) {
   return {
     cep: (data.cep || "").replace(/\D/g, ""), logradouro: data.logradouro || "", numero: data.numero || "",
     cidade: data.cidade || "", bairro: data.bairro || "", uf: data.uf || "",
-    telefoneAdicional: phone?.nationalNumber || "",
+    rg: data.rg || "", telefoneAdicional: phone?.nationalNumber || "",
     paisTelefoneAdicional: isSupportedCountry(data.paisTelefoneAdicional || "") ? data.paisTelefoneAdicional : phone?.country || "BR"
   };
 }
@@ -104,7 +104,7 @@ export default function ProfilePage() {
     try {
       const phone = phoneToInternational(form.telefoneAdicional, form.paisTelefoneAdicional);
       const payload = { ...form, cep: form.cep || null, logradouro: form.logradouro.trim() || null,
-        numero: form.numero.trim() || null, bairro: form.bairro.trim() || null,
+        numero: form.numero.trim() || null, bairro: form.bairro.trim() || null, rg: form.rg.trim() || null,
         telefoneAdicional: phone, paisTelefoneAdicional: phone ? form.paisTelefoneAdicional : null, removerFoto: removePhoto };
       const body = new FormData();
       body.append("dados", new Blob([JSON.stringify(payload)], { type: "application/json" }));
@@ -142,6 +142,7 @@ export default function ProfilePage() {
             <p>{session.perfil === "PACIENTE" ? "Você pode pular esta etapa, mas não poderá agendar consultas enquanto o endereço estiver incompleto." : "Seu perfil está incompleto. Complete o endereço do atendimento."} Foto e telefone adicional são opcionais.</p>
           </div>}
           <form onSubmit={save} className="mt-8 space-y-8">
+            <label className="block max-w-md text-sm font-medium">RG (opcional)<input className={fieldClass} maxLength={20} pattern="[0-9A-Za-z. \-]*" value={form.rg} onChange={e => update("rg", e.target.value)} /></label>
             <fieldset disabled={saving || preparing} className="min-w-0 border-0 p-0">
               <legend className="text-lg font-semibold">Foto de perfil</legend>
               <div className="mt-4 flex flex-wrap items-center gap-5">
@@ -184,6 +185,7 @@ export default function ProfilePage() {
             </div>
           </form>
           {session.perfil === "FISIO" && <ProfessionalSettings />}
+          <p className="kx-muted mt-8">{profile.termosAceitosEm ? `Termos aceitos em ${new Date(profile.termosAceitosEm).toLocaleDateString("pt-BR")} (versão ${profile.termosVersao}).` : "Seu aceite dos termos ainda não foi registrado."} <Link to="/privacidade" className="kx-link">Termos e privacidade</Link></p>
         </>}
       </section>
     </main>

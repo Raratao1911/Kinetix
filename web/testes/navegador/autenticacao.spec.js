@@ -53,7 +53,7 @@ test('cadastro de paciente envia o contrato correto', async ({ page }) => {
   await page.getByLabel('Cidade', { exact: true }).fill('Barueri');
   await page.getByLabel('Estado', { exact: true }).selectOption('SP');
   await page.getByLabel('CPF', { exact: true }).fill('529.982.247-24');
-  await page.getByRole('checkbox', { name: /Aceito os termos/ }).check();
+  await page.getByRole('checkbox', { name: /Aceito os termos/i }).check();
   await page.route('**/api/v1/auth/pacientes', route => route.request().postDataJSON().documentoIdentidade === '52998224724'
     ? route.fulfill({ status: 400, json: { mensagem: 'CPF inválido. Confira os dígitos informados.' } })
     : route.fallback());
@@ -90,7 +90,7 @@ test('cadastro exige dados e limita nascimento e telefone', async ({ page }) => 
   await page.getByLabel('Senha', { exact: true }).fill('Senha123!');
   await page.getByLabel('Cidade', { exact: true }).fill('Barueri');
   await page.getByLabel('Estado', { exact: true }).selectOption('SP');
-  await page.getByRole('checkbox', { name: /Aceito os termos/ }).check();
+  await page.getByRole('checkbox', { name: /Aceito os termos/i }).check();
   await page.getByLabel('Telefone', { exact: true }).fill('12');
   await page.getByLabel('CPF', { exact: true }).fill('52998224725');
   await page.getByRole('button', { name: 'Cadastrar', exact: true }).click();
@@ -142,7 +142,7 @@ test('cadastro de fisioterapeuta envia CREFITO e localizacao', async ({ page }) 
   await page.getByLabel('Estado do CREFITO', { exact: true }).fill('SP');
   await page.getByLabel('Cidade', { exact: true }).fill('Barueri');
   await page.getByLabel('Estado', { exact: true }).selectOption('SP');
-  await page.getByRole('checkbox', { name: /Aceito os termos/ }).check();
+  await page.getByRole('checkbox', { name: /Aceito os termos/i }).check();
   const request = page.waitForRequest(r => r.url().endsWith('/api/v1/auth/fisioterapeutas'));
   await page.getByRole('button', { name: 'Cadastrar', exact: true }).click();
   expect((await request).postDataJSON()).toMatchObject({ crefitoNumero: '12345', crefitoUf: 'SP', cidade: 'Barueri', uf: 'SP' });

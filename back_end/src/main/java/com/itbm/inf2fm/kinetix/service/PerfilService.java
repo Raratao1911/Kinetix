@@ -17,6 +17,7 @@ import java.io.IOException;
 
 @Service
 public class PerfilService {
+    public static final String VERSAO_TERMOS = "2026-10-15.2";
     private final UsuarioRepository usuarios;
     private final PacienteRepository pacientes;
     private final FisioterapeutaRepository fisioterapeutas;
@@ -65,6 +66,7 @@ public class PerfilService {
             fisio.bairro = limpar(request.bairro()); fisio.uf = request.uf().trim().toUpperCase();
         }
         usuario.telefoneAdicional = telefone;
+        usuario.rg = limpar(request.rg());
         usuario.paisTelefoneAdicional = telefone == null ? null : pais;
         if (imagem != null) fotos.save(new FotoPerfil(id, imagem, "image/jpeg"));
         else if (request.removerFoto() && fotos.existsById(id)) fotos.deleteById(id);
@@ -109,7 +111,17 @@ public class PerfilService {
             && limpar(cidade) != null && limpar(bairro) != null && limpar(uf) != null;
         return new ConfiguracaoPerfilResumo(u.id, u.nome, u.email, u.perfil, u.telefone,
             u.telefoneAdicional, u.paisTelefoneAdicional, limpar(cep), rua, numero, cidade, bairro,
-            limpar(uf), fotos.existsById(u.id), completo);
+            limpar(uf), fotos.existsById(u.id), completo, u.rg, u.termosAceitosEm, u.termosVersao);
+    }
+
+    @Transactional
+    public void aceitarTermos(Long id) {
+        registrarAceite(usuario(id));
+    }
+
+    public static void registrarAceite(Usuario usuario) {
+        usuario.termosAceitosEm = java.time.OffsetDateTime.now();
+        usuario.termosVersao = VERSAO_TERMOS;
     }
 
     private String limpar(String value) { return value == null || value.isBlank() ? null : value.trim(); }

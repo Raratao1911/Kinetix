@@ -8,14 +8,6 @@ export default defineConfig({
       "/api": {
         target: process.env.VITE_PROXY_TARGET ?? "http://localhost:8080",
         changeOrigin: true
-      },
-      "/swagger-ui": {
-        target: process.env.VITE_PROXY_TARGET ?? "http://localhost:8080",
-        changeOrigin: true
-      },
-      "/v3": {
-        target: process.env.VITE_PROXY_TARGET ?? "http://localhost:8080",
-        changeOrigin: true
       }
     }
   }

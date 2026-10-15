@@ -19,6 +19,29 @@ import static org.mockito.Mockito.*;
 
 class ConsultaServiceTest {
     @Test
+    void avaliacaoExigeProprietarioSessaoRealizadaENaoPodeDuplicar() {
+        var consultas = mock(ConsultaRepository.class);
+        var avaliacoes = mock(AvaliacaoRepository.class);
+        var service = new ConsultaService(mock(FisioterapeutaRepository.class), mock(PacienteRepository.class),
+            mock(ServicoRepository.class), mock(DisponibilidadeRepository.class), mock(BloqueioAgendaRepository.class),
+            consultas, avaliacoes, mock(NotificacaoService.class), new MockEnvironment(), mock(PerfilService.class));
+        Usuario usuario = new Usuario(); usuario.id = 1L;
+        Consulta c = new Consulta(); c.id = 10L; c.paciente = new Paciente(usuario);
+        when(consultas.bloquearPorId(10L)).thenReturn(Optional.of(c));
+        when(consultas.findById(10L)).thenReturn(Optional.of(c));
+        var request = new com.itbm.inf2fm.kinetix.dto.ApiDtos.AvaliacaoRequest(5, "Bom atendimento");
+        org.junit.jupiter.api.Assertions.assertThrows(ErroNegocio.class, () -> service.avaliar(10L, 2L, request));
+        org.junit.jupiter.api.Assertions.assertThrows(ErroNegocio.class, () -> service.minhaAvaliacao(10L, 2L));
+        c.status = com.itbm.inf2fm.kinetix.model.enums.StatusConsulta.CONFIRMADA;
+        org.junit.jupiter.api.Assertions.assertThrows(ErroNegocio.class, () -> service.avaliar(10L, 1L, request));
+        c.status = com.itbm.inf2fm.kinetix.model.enums.StatusConsulta.REALIZADA;
+        service.avaliar(10L, 1L, request);
+        verify(avaliacoes).save(argThat(a -> a.nota == 5 && "PENDENTE".equals(a.status)));
+        when(avaliacoes.existsByConsulta_Id(10L)).thenReturn(true);
+        org.junit.jupiter.api.Assertions.assertThrows(ErroNegocio.class, () -> service.avaliar(10L, 1L, request));
+    }
+
+    @Test
     void perfilIncompletoImpedeAgendamentoAntesDeReservarHorario() {
         var perfis = mock(PerfilService.class);
         var consultas = mock(ConsultaRepository.class);

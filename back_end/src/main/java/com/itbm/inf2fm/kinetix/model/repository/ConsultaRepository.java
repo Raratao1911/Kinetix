@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
+    @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})
+    List<Consulta> findAllByOrderByInicioDesc();
     @Override
     @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})
     Optional<Consulta> findById(Long id);

@@ -5,6 +5,7 @@ import { api } from "../api/client.js";
 import Brand from "../components/Brand.jsx";
 import { money, statusLabel } from "../components/PageLayout.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
+import ExerciseTimer from "../components/ExerciseTimer.jsx";
 
 export default function DashboardPage() {
   const { session, logout } = useAuth();
@@ -76,6 +77,7 @@ export default function DashboardPage() {
           <div className="mr-12 flex flex-wrap items-center gap-3">
           <Link to="/profissionais" className="inline-flex h-10 items-center text-sm font-medium">Buscar profissionais</Link>
           <Link to="/agenda" className="inline-flex h-10 items-center gap-2 text-sm font-medium"><CalendarDays size={17} />Consultas</Link>
+          {fisio && <><Link to="/financeiro" className="kx-nav">Financeiro</Link><Link to="/planos" className="kx-nav">Planos</Link></>}
           <Link to="/configuracao-perfil" aria-label="Configuração de perfil" className="inline-flex h-10 items-center gap-2 text-sm font-medium"><Settings size={17} />Perfil</Link>
           <button className="inline-flex h-10 items-center gap-2 rounded border border-slate-300 px-3 text-sm font-medium dark:border-darkTheme-border dark:text-darkTheme-text" onClick={logout}>
             <LogOut size={17} />
@@ -149,7 +151,7 @@ export default function DashboardPage() {
           {!loading && !error && prescricoes.length === 0 && <p className="mt-2 text-slate-500 dark:text-darkTheme-muted">Nenhuma rotina prescrita.</p>}
           {prescricoes.map(p => <article key={p.id} className="mt-4 border-t border-slate-200 py-4 dark:border-darkTheme-border">
             <h3 className="font-semibold">{p.titulo}</h3><p className="break-words text-sm">{p.orientacoes}</p>
-            <ul className="mt-2 space-y-2">{p.itens.map(i => <li key={i.id} className="text-sm">{i.exercicioNome}: {i.series ?? "-"} séries, {i.repeticoes ?? "-"} repetições{i.duracaoSegundos ? `, ${i.duracaoSegundos}s` : ""}<p>{i.orientacoes}</p></li>)}</ul>
+            <ul className="mt-2 space-y-2">{p.itens.map(i => <li key={i.id} className="text-sm">{i.exercicioNome}: {i.series ?? "-"} séries, {i.repeticoes ?? "-"} repetições{i.duracaoSegundos ? `, ${i.duracaoSegundos}s` : ""}<p>{i.orientacoes}</p>{i.frequencia && <p>{i.frequencia}</p>}{i.duracaoSegundos > 0 && <ExerciseTimer seconds={i.duracaoSegundos} />}</li>)}</ul>
           </article>)}
         </>}
       </section>

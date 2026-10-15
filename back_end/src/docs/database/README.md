@@ -9,7 +9,8 @@ O esquema oficial da aplicação está em `src/main/resources/db/migration/V1__c
 3. Inicie a API. O Flyway aplica as migrations pendentes e o Hibernate valida o esquema.
 
 V1 cria a estrutura inicial. V2 acrescenta endereco do paciente, telefone adicional
-e a tabela de fotos de perfil. Ambas atuam no mesmo banco Kinetix; nao sao bancos separados.
+e a tabela de fotos de perfil. V3 acrescenta RG opcional e versao/data do aceite
+dos termos em usuarios. As tres migrations atuam no mesmo banco Kinetix; nao sao bancos separados.
 O historico fica em dbo.flyway_schema_history. Nao execute as migrations manualmente
 nem o script completo sobre o banco que ja esta em uso.
 

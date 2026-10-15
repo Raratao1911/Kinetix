@@ -20,11 +20,13 @@ public final class ApiDtos {
         @NotBlank @Size(max=100) String cidade, @Size(max=100) String bairro,
         @NotBlank @Pattern(regexp="(?i)AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message="Informe um Estado válido.") String uf,
         @Pattern(regexp="\\+[1-9][0-9]{7,14}", message="Informe um telefone adicional válido com DDI.") String telefoneAdicional,
-        @Pattern(regexp="[A-Z]{2}") String paisTelefoneAdicional, boolean removerFoto) {}
+        @Pattern(regexp="[A-Z]{2}") String paisTelefoneAdicional, boolean removerFoto,
+        @Size(max=20) @Pattern(regexp="[0-9A-Za-z. -]*", message="Informe um RG valido.") String rg) {}
     public record ConfiguracaoPerfilResumo(Long usuarioId, String nome, String email, PerfilUsuario perfil,
         String telefone, String telefoneAdicional, String paisTelefoneAdicional, String cep,
         String logradouro, String numero, String cidade, String bairro, String uf,
-        boolean fotoDisponivel, boolean completo) {}
+        boolean fotoDisponivel, boolean completo, String rg, OffsetDateTime termosAceitosEm, String termosVersao) {}
+    public record ConsentimentoRequest(@AssertTrue(message="Confirme o aceite dos termos.") boolean aceito) {}
     public record AuthResponse(Long usuarioId, String nome, PerfilUsuario perfil, String token, String tipoToken, OffsetDateTime expiraEm) {}
     public record PerfilPacienteRequest(@Size(max=120) String nome, @Size(max=30) String telefone,
         @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl, LocalDate dataNascimento,
@@ -40,7 +42,8 @@ public final class ApiDtos {
         @NotBlank(message="Informe o CPF.") @CPF(message="CPF inválido. Confira os dígitos informados.") String documentoIdentidade, @Size(max=500) String fotoUrl,
         @NotNull LocalDate dataNascimento, @NotBlank @Size(max=100) String cidade,
         @Size(max=100) String bairro,
-        @NotBlank @Pattern(regexp="(?i)AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message="Informe um Estado válido.") String uf) {
+        @NotBlank @Pattern(regexp="(?i)AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message="Informe um Estado válido.") String uf,
+        @NotNull @AssertTrue(message="Confirme o aceite dos termos.") Boolean aceiteTermos) {
         @AssertTrue(message="A data de nascimento deve estar entre 01/01/1900 e 31/12/2016.")
         public boolean isDataNascimentoValida() {
             return dataNascimento == null || (!dataNascimento.isBefore(LocalDate.of(1900, 1, 1))
@@ -58,7 +61,8 @@ public final class ApiDtos {
         @Size(max=100) String bairro, @Size(max=9) String cep,
         @DecimalMin("-90.0") @DecimalMax("90.0") BigDecimal latitude,
         @DecimalMin("-180.0") @DecimalMax("180.0") BigDecimal longitude,
-        boolean atendeOnline, Set<Long> especialidadesIds) {}
+        boolean atendeOnline, Set<Long> especialidadesIds,
+        @NotNull @AssertTrue(message="Confirme o aceite dos termos.") Boolean aceiteTermos) {}
     public record ProfissionalResumo(Long id, String nome, String fotoUrl, String nomeClinica, String apresentacao,
         String bairro, String cidade, String uf, String logradouro, String numero, String complemento,
         BigDecimal latitude, BigDecimal longitude, String crefitoUf, Set<String> especialidades,
@@ -76,6 +80,13 @@ public final class ApiDtos {
         java.time.LocalDate inicio, java.time.LocalDate fim) {}
     public record EspecialidadeResumo(Long id, String nome, String descricao) {}
     public record VerificacaoRequest(boolean verificado) {}
+    public record ProfissionalAdminResumo(Long usuarioId, String nome, String email, String crefitoNumero,
+        String crefitoUf, boolean verificado) {}
+    public record AvaliacaoAdminResumo(Long id, Long consultaId, String profissionalNome,
+        int nota, String comentario, String status) {}
+    public record AssinaturaAdminResumo(Long id, String profissionalNome, String planoNome,
+        String status, LocalDate inicio, LocalDate fim) {}
+    public record AssinaturaStatusRequest(@NotBlank @Pattern(regexp="ATIVA|CANCELADA") String status) {}
     public record ServicoRequest(@NotBlank @Size(max=120) String nome, @Size(max=500) String descricao,
         @Min(10) @Max(480) int duracaoMinutos, @DecimalMin("0.00") BigDecimal preco) {}
     public record ServicoResumo(Long id, String nome, String descricao, int duracaoMinutos, BigDecimal preco) {}
@@ -113,6 +124,7 @@ public final class ApiDtos {
         String titulo, String orientacoes, LocalDate inicio, LocalDate fim, boolean ativo,
         List<ItemPrescricaoResumo> itens) {}
     public record AvaliacaoRequest(@Min(1) @Max(5) int nota, @Size(max=1000) String comentario) {}
+    public record MinhaAvaliacaoResumo(Long id, int nota, String comentario, String status) {}
     public record AvaliacaoModeracaoRequest(@NotBlank @Pattern(regexp="APROVADA|REJEITADA") String status) {}
     public record PlanoAssinaturaResumo(Long id, String nome, String descricao, BigDecimal precoMensal) {}
     public record PushTokenRequest(@NotBlank @Size(max=300) String token, @NotBlank @Pattern(regexp="IOS|ANDROID") String plataforma) {}

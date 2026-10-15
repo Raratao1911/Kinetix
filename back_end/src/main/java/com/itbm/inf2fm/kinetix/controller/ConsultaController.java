@@ -52,5 +52,10 @@ public class ConsultaController {
     }
 
     private Long id(Jwt jwt) { return Long.valueOf(jwt.getSubject()); }
+    @GetMapping("/{consultaId}/avaliacao")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public MinhaAvaliacaoResumo minhaAvaliacao(@AuthenticationPrincipal Jwt jwt, @PathVariable Long consultaId) {
+        return consultas.minhaAvaliacao(consultaId, id(jwt));
+    }
     private PerfilUsuario perfil(Jwt jwt) { return PerfilUsuario.valueOf(jwt.getClaimAsString("role")); }
 }

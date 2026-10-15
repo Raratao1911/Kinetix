@@ -23,15 +23,18 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
-    volumes:
-      - ./back_end/src/docs/database:/scripts
-    command: >
-      /bin/bash -c "/opt/mssql-tools18/bin/sqlcmd
-      -S sqlserver
-      -U sa
-      -P Kinetix@12345
-      -C
-      -b -i /scripts/kinetix.sql"
+    entrypoint: ["/opt/mssql-tools18/bin/sqlcmd"]
+    command:
+      - "-S"
+      - "sqlserver"
+      - "-U"
+      - "sa"
+      - "-P"
+      - "Kinetix@12345"
+      - "-C"
+      - "-b"
+      - "-Q"
+      - "IF DB_ID(N'Kinetix') IS NULL EXEC(N'CREATE DATABASE [Kinetix]');"
     restart: "no"
 
   backend:

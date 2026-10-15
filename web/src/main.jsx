@@ -14,6 +14,10 @@ import SearchPage from "./pages/SearchPage.jsx";
 import ProfessionalPage from "./pages/ProfessionalPage.jsx";
 import AgendaPage from "./pages/AgendaPage.jsx";
 import PatientPage from "./pages/PatientPage.jsx";
+import AdminPage from "./pages/AdminPage.jsx";
+import PlansPage from "./pages/PlansPage.jsx";
+import FinancePage from "./pages/FinancePage.jsx";
+import PrivacyPage from "./pages/PrivacyPage.jsx";
 
 function PrivateRoute({ children, perfil }) {
   const { session } = useAuth();
@@ -63,6 +67,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
           <Route path="/profissionais" element={<SearchPage />} />
+          <Route path="/planos" element={<PlansPage />} />
+          <Route path="/privacidade" element={<PrivacyPage />} />
+          <Route path="/termos" element={<PrivacyPage />} />
+          <Route path="/administracao" element={<PrivateRoute perfil="ADMIN"><AdminPage /></PrivateRoute>} />
+          <Route path="/financeiro" element={<PrivateRoute perfil="FISIO"><FinancePage /></PrivateRoute>} />
           <Route path="/profissionais/:id" element={<ProfessionalPage />} />
           <Route path="/agenda" element={<PrivateRoute><AgendaPage /></PrivateRoute>} />
           <Route path="/pacientes/:id" element={<PrivateRoute perfil="FISIO"><PatientPage /></PrivateRoute>} />
@@ -71,7 +80,7 @@ function App() {
             path="/dashboard"
             element={
               <PrivateRoute>
-                <DashboardPage />
+                <AccountDashboard />
               </PrivateRoute>
             }
           />
@@ -89,6 +98,11 @@ function App() {
       </BrowserRouter>
     </AuthProvider>
   );
+}
+
+function AccountDashboard() {
+  const { session } = useAuth();
+  return session?.perfil === "ADMIN" ? <Navigate to="/administracao" replace /> : <DashboardPage />;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);

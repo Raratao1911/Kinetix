@@ -36,4 +36,10 @@ public class PerfilController {
             .header("X-Content-Type-Options", "nosniff")
             .contentType(MediaType.parseMediaType(foto.tipo)).body(foto.conteudo);
     }
+
+    @PostMapping("/consentimento")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void consentir(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ConsentimentoRequest request) {
+        perfis.aceitarTermos(Long.valueOf(jwt.getSubject()));
+    }
 }

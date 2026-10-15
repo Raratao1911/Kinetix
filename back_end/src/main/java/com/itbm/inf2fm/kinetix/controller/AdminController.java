@@ -13,6 +13,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
+    @GetMapping("/consultas")
+    public java.util.List<ConsultaResumo> agenda() { return consultas.agendaAdministrativa(); }
+
+    @PostMapping("/consultas/{id}/confirmar")
+    public ConsultaResumo confirmar(@PathVariable Long id) { return consultas.confirmarAdministrativamente(id); }
+    @GetMapping("/fisioterapeutas")
+    public java.util.List<ProfissionalAdminResumo> profissionais() { return admin.profissionais(); }
+
+    @GetMapping("/avaliacoes")
+    public java.util.List<AvaliacaoAdminResumo> avaliacoes() { return admin.avaliacoes(); }
+
+    @GetMapping("/assinaturas")
+    public java.util.List<AssinaturaAdminResumo> assinaturas() { return admin.assinaturas(); }
+
+    @PatchMapping("/assinaturas/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void atualizarAssinatura(@PathVariable Long id, @Valid @RequestBody AssinaturaStatusRequest request) {
+        admin.atualizarAssinatura(id, request.status());
+    }
     private final ProfissionalService profissionais;
     private final ConsultaService consultas;
     private final AdminService admin;

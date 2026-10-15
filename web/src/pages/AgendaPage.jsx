@@ -4,11 +4,13 @@ import { CalendarDays, Plus, Trash2, Check, X, RefreshCw, UserRound, CheckCheck 
 import { api } from "../api/client.js";
 import { useAuth } from "../state/AuthContext.jsx";
 import PageLayout, { dateTime, money, today, errorMessage, statusLabel } from "../components/PageLayout.jsx";
+import ConsultationReview from "../components/ConsultationReview.jsx";
 
 const days = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"];
 export default function AgendaPage() {
   const { session } = useAuth();
   const fisio = session.perfil === "FISIO";
+  const admin = session.perfil === "ADMIN";
   const [params, setParams] = useSearchParams();
   const tab = fisio && params.get("aba") === "disponibilidade" ? "disponibilidade" : "consultas";
   const [consultas, setConsultas] = useState([]);
@@ -18,6 +20,7 @@ export default function AgendaPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [records, setRecords] = useState(null);
   const [cancel, setCancel] = useState(null);
   const [reason, setReason] = useState("");
   const cancelDialog = useRef(null);
@@ -27,12 +30,12 @@ export default function AgendaPage() {
   useEffect(() => {
     let active = true;
     setLoading(true); setError("");
-    Promise.all([api.get("/api/v1/consultas/minhas"), fisio ? api.get("/api/v1/fisioterapeuta/disponibilidades") : Promise.resolve({ data: [] })])
+    Promise.all([api.get(admin ? "/api/v1/admin/consultas" : "/api/v1/consultas/minhas"), fisio ? api.get("/api/v1/fisioterapeuta/disponibilidades") : Promise.resolve({ data: [] })])
       .then(([c, d]) => { if (active) { setConsultas(c.data); setAvailability(d.data); } })
       .catch(err => { if (active) setError(errorMessage(err)); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [fisio, retry]);
+  }, [fisio, admin, retry]);
   async function perform(action, success) {
     setBusy(true); setError(""); setMessage("");
     try { await action(); setMessage(success); }
@@ -43,7 +46,7 @@ export default function AgendaPage() {
     if (action === "concluir" && !window.confirm("Concluir este atendimento?")) return;
     perform(async () => {
       const { data } = action === "confirmar"
-        ? await api.post(`/api/v1/fisioterapeuta/consultas/${consulta.id}/confirmar`)
+        ? await api.post(`/api/v1/${admin ? "admin" : "fisioterapeuta"}/consultas/${consulta.id}/confirmar`)
         : await api.patch(`/api/v1/consultas/${consulta.id}/concluir`);
       setConsultas(current => current.map(item => item.id === data.id ? data : item));
     }, action === "confirmar" ? "Consulta confirmada." : "Atendimento concluído.");
@@ -76,7 +79,7 @@ export default function AgendaPage() {
     ? activeStatus(c.status) && new Date(c.inicio) >= new Date(today() + "T00:00:00-03:00")
     : !activeStatus(c.status) || new Date(c.inicio) < new Date(today() + "T00:00:00-03:00")))
     .sort((a, b) => scope === "proximas" ? new Date(a.inicio) - new Date(b.inicio) : new Date(b.inicio) - new Date(a.inicio));
-  return <PageLayout title={fisio ? "Agenda de atendimentos" : "Minhas consultas"} actions={<button className="kx-icon" title="Atualizar agenda" aria-label="Atualizar agenda" disabled={loading || busy} onClick={() => setRetry(n => n + 1)}><RefreshCw size={18} /></button>}>
+  return <PageLayout title={fisio || admin ? "Agenda de atendimentos" : "Minhas consultas"} actions={<button className="kx-icon" title="Atualizar agenda" aria-label="Atualizar agenda" disabled={loading || busy} onClick={() => setRetry(n => n + 1)}><RefreshCw size={18} /></button>}>
     {fisio && <div className="kx-tabs" role="tablist" aria-label="Agenda">
       <button role="tab" aria-selected={tab === "consultas"} onClick={() => setParams({})}>Consultas</button>
       <button role="tab" aria-selected={tab === "disponibilidade"} onClick={() => setParams({ aba: "disponibilidade" })}>Disponibilidade</button>
@@ -106,28 +109,34 @@ export default function AgendaPage() {
     </> : <>
       <div className="my-5 flex flex-wrap items-end justify-between gap-3">
         <label className="text-sm font-medium"><span id="agenda-exibir">Exibir</span><select aria-labelledby="agenda-exibir" className="kx-input" value={scope} onChange={e => setScope(e.target.value)}><option value="proximas">Próximas consultas</option><option value="historico">Histórico de sessões</option><option value="todas">Todas as consultas</option></select></label>
-        {!fisio && <Link to="/profissionais" className="kx-primary"><Plus size={17} />Agendar consulta</Link>}
+        {!fisio && !admin && <Link to="/profissionais" className="kx-primary"><Plus size={17} />Agendar consulta</Link>}
       </div>
       {!filtered.length && <p className="kx-muted py-8">Nenhuma consulta neste período.</p>}
       <ul className="kx-list">{filtered.map(c => {
         const active = activeStatus(c.status);
-        const canCancel = fisio || new Date(c.inicio) - Date.now() >= 24 * 60 * 60 * 1000;
+        const canCancel = fisio || admin || new Date(c.inicio) - Date.now() >= 24 * 60 * 60 * 1000;
         return <li key={c.id} className="kx-row">
           <div className="min-w-0 flex-1 basis-60">
-            <p className="break-words font-semibold">{fisio ? c.pacienteNome : c.fisioterapeutaNome}</p>
+            <p className="break-words font-semibold">{admin ? `${c.pacienteNome} / ${c.fisioterapeutaNome}` : fisio ? c.pacienteNome : c.fisioterapeutaNome}</p>
             <p className="mt-1 break-words text-sm">{c.servicoNome} · {money(c.preco)}</p>
             <p className="kx-muted mt-1">{dateTime(c.inicio)} · horário de Brasília</p>
             <span className="kx-badge mt-2">{statusLabel(c.status)}</span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {fisio && (active || ["REALIZADA", "FALTOU"].includes(c.status)) && <Link className="kx-secondary" to={`/pacientes/${c.pacienteId}`}><UserRound size={17} />Paciente</Link>}
-            {fisio && c.status === "SOLICITADA" && <button className="kx-primary" disabled={busy} onClick={() => act(c, "confirmar")}><Check size={17} />Confirmar</button>}
+            {(fisio || admin) && c.status === "SOLICITADA" && <button className="kx-primary" disabled={busy} onClick={() => act(c, "confirmar")}><Check size={17} />Confirmar</button>}
             {fisio && c.status === "CONFIRMADA" && <button className="kx-primary" disabled={busy} onClick={() => act(c, "concluir")}><CheckCheck size={17} />Concluir</button>}
             {active && <button className="kx-secondary" disabled={busy || !canCancel} title={!canCancel ? "Cancelamento permitido com pelo menos 24 horas de antecedência." : "Cancelar consulta"} onClick={() => { setCancel(c); setReason(""); }}><X size={17} />Cancelar</button>}
           </div>
+          {!fisio && !admin && c.status === "REALIZADA" && <ConsultationReview consultaId={c.id} />}
         </li>;
       })}</ul>
-      {!fisio && <p className="kx-muted mt-5">Cancelamentos pelo paciente exigem pelo menos 24 horas de antecedência.</p>}
+      {!fisio && !admin && <p className="kx-muted mt-5">Cancelamentos pelo paciente exigem pelo menos 24 horas de antecedência.</p>}
+      {!fisio && !admin && <section className="kx-section"><h2 className="text-lg font-semibold">Meus prontuários</h2>
+        <button className="kx-secondary mt-3" disabled={busy} onClick={() => records === null ? perform(async () => setRecords((await api.get("/api/v1/paciente/prontuarios")).data), "Prontuários carregados.") : setRecords(null)}>{records === null ? "Ver meus registros" : "Ocultar registros"}</button>
+        {records && <ul className="kx-list">{records.map(r => <li key={r.id} className="py-4"><p className="kx-muted">Consulta #{r.consultaId} · {dateTime(r.atualizadoEm)}</p><p className="mt-2 whitespace-pre-wrap break-words">{r.registroClinico}</p></li>)}</ul>}
+        {records?.length === 0 && <p className="kx-muted py-4">Nenhum prontuário registrado.</p>}
+      </section>}
     </>}
     {cancel && <dialog ref={cancelDialog} aria-labelledby="cancel-title" onCancel={event => { if (busy) event.preventDefault(); else setCancel(null); }} className="w-[90vw] max-w-lg rounded border-0 bg-white p-6 text-ink shadow-lg backdrop:bg-black/50 dark:bg-darkTheme-panel dark:text-darkTheme-text">
         <h2 id="cancel-title" className="text-lg font-semibold">Cancelar consulta</h2>

@@ -127,5 +127,11 @@ public class FisioterapeutaController {
         return admin.minhasAssinaturas(id(jwt));
     }
 
+    @DeleteMapping("/assinaturas/{assinaturaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelarAssinatura(@AuthenticationPrincipal Jwt jwt, @PathVariable Long assinaturaId) {
+        admin.cancelarMinhaAssinatura(id(jwt), assinaturaId);
+    }
+
     private Long id(Jwt jwt) { return Long.valueOf(jwt.getSubject()); }
 }

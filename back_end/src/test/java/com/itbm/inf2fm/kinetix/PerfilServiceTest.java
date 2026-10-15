@@ -47,7 +47,7 @@ class PerfilServiceTest {
 
     ConfiguracaoPerfilRequest dados(boolean remover) {
         return new ConfiguracaoPerfilRequest("06400000", " Rua de Teste ", "123", "Barueri", "Centro", "sp",
-            "+12025550123", "US", remover);
+            "+12025550123", "US", remover, "12.345.678-X");
     }
 
     @Test
@@ -62,9 +62,20 @@ class PerfilServiceTest {
         assertThat(salvo.uf()).isEqualTo("SP");
         assertThat(salvo.telefoneAdicional()).isEqualTo("+12025550123");
         assertThatCode(() -> service.exigirCompleto(7L)).doesNotThrowAnyException();
-        service.salvar(7L, new ConfiguracaoPerfilRequest("06400000", "Rua", "123", "Barueri", "Centro", "SP", null, null, false), null);
+        assertThat(salvo.rg()).isEqualTo("12.345.678-X");
+        service.salvar(7L, new ConfiguracaoPerfilRequest("06400000", "Rua", "123", "Barueri", "Centro", "SP", null, null, false, null), null);
         assertThat(usuario.telefoneAdicional).isNull();
         assertThat(usuario.paisTelefoneAdicional).isNull();
+        assertThat(usuario.rg).isNull();
+    }
+
+    @Test
+    void aceitePersisteVersaoEInstanteSemAlterarEndereco() {
+        service.aceitarTermos(7L);
+        assertThat(usuario.termosVersao).isEqualTo(PerfilService.VERSAO_TERMOS);
+        assertThat(usuario.termosAceitosEm).isNotNull();
+        assertThat(service.meuPerfil(7L).termosVersao()).isEqualTo(PerfilService.VERSAO_TERMOS);
+        assertThat(service.meuPerfil(7L).completo()).isFalse();
     }
 
     @Test

@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { CalendarDays, Search, LayoutDashboard, Settings, LogIn, LogOut } from "lucide-react";
+import { CalendarDays, Search, LayoutDashboard, Settings, LogIn, LogOut, Wallet, ShieldCheck, ListChecks } from "lucide-react";
 import Brand from "./Brand.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
 
@@ -22,8 +22,11 @@ export default function PageLayout({ title, children, actions }) {
           <NavLink to="/profissionais" className="kx-nav"><Search size={17} />Buscar</NavLink>
           {session ? <>
             <NavLink to="/dashboard" className="kx-nav"><LayoutDashboard size={17} />Painel</NavLink>
-            <NavLink to="/agenda" className="kx-nav"><CalendarDays size={17} />Consultas</NavLink>
-            <NavLink to="/configuracao-perfil" className="kx-nav"><Settings size={17} />Perfil</NavLink>
+            {session.perfil === "ADMIN" ? <><NavLink to="/administracao" className="kx-nav"><ShieldCheck size={17} />Administração</NavLink><NavLink to="/agenda" className="kx-nav"><CalendarDays size={17} />Agendamentos</NavLink></> : <>
+              <NavLink to="/agenda" className="kx-nav"><CalendarDays size={17} />Consultas</NavLink>
+              <NavLink to="/configuracao-perfil" className="kx-nav"><Settings size={17} />Perfil</NavLink>
+            </>}
+            {session.perfil === "FISIO" && <><NavLink to="/financeiro" className="kx-nav"><Wallet size={17} />Financeiro</NavLink><NavLink to="/planos" className="kx-nav"><ListChecks size={17} />Planos</NavLink></>}
             <button onClick={logout} className="kx-nav"><LogOut size={17} />Sair</button>
           </> : <Link to="/login" className="kx-nav"><LogIn size={17} />Entrar</Link>}
         </nav>
@@ -34,6 +37,7 @@ export default function PageLayout({ title, children, actions }) {
         <h1 className="min-w-0 break-words text-2xl font-semibold">{title}</h1>{actions}
       </div>
       {children}
+      <footer className="kx-section text-sm"><Link to="/privacidade" className="kx-link">Termos e privacidade</Link></footer>
     </div>
   </main>;
 }

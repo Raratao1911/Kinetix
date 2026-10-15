@@ -24,6 +24,12 @@ public class Usuario {
     public String paisTelefoneAdicional;
     @Column(name = "documento_identidade", length = 30)
     public String documentoIdentidade;
+    @Column(length = 20)
+    public String rg;
+    @Column(name = "termos_aceitos_em")
+    public OffsetDateTime termosAceitosEm;
+    @Column(name = "termos_versao", length = 20)
+    public String termosVersao;
     @Column(name = "foto_url", length = 500)
     public String fotoUrl;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)

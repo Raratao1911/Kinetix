@@ -189,7 +189,7 @@ public class ConsultaService {
 
     @Transactional
     public void avaliar(Long consultaId, Long pacienteId, AvaliacaoRequest request) {
-        Consulta consulta = consultas.findById(consultaId)
+        Consulta consulta = consultas.bloquearPorId(consultaId)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta não encontrada."));
         if (!consulta.paciente.usuario.id.equals(pacienteId))
             throw ErroNegocio.proibido("Você só pode avaliar suas próprias consultas.");
@@ -207,11 +207,36 @@ public class ConsultaService {
         avaliacoes.save(avaliacao);
     }
 
+    @Transactional(readOnly = true)
+    public MinhaAvaliacaoResumo minhaAvaliacao(Long consultaId, Long pacienteId) {
+        Consulta consulta = consultas.findById(consultaId)
+            .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta nao encontrada."));
+        if (!consulta.paciente.usuario.id.equals(pacienteId))
+            throw ErroNegocio.proibido("Esta consulta nao pertence a sua conta.");
+        return avaliacoes.findByConsulta_Id(consultaId)
+            .map(a -> new MinhaAvaliacaoResumo(a.id, a.nota, a.comentario, a.status)).orElse(null);
+    }
+
     @Transactional
     public void moderarAvaliacao(Long avaliacaoId, String status) {
         Avaliacao avaliacao = avaliacoes.findById(avaliacaoId)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Avaliação não encontrada."));
         avaliacao.status = status;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConsultaResumo> agendaAdministrativa() {
+        return consultas.findAllByOrderByInicioDesc().stream().map(this::resumir).toList();
+    }
+
+    @Transactional
+    public ConsultaResumo confirmarAdministrativamente(Long consultaId) {
+        Consulta consulta = consultas.bloquearPorId(consultaId)
+            .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta nao encontrada."));
+        if (consulta.status != StatusConsulta.SOLICITADA)
+            throw ErroNegocio.conflito("Somente solicitacoes pendentes podem ser confirmadas.");
+        consulta.status = StatusConsulta.CONFIRMADA;
+        return resumir(consulta);
     }
 
     private boolean dentroDaDisponibilidade(Long fisioId, OffsetDateTime inicio, OffsetDateTime fim, int duracao) {

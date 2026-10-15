@@ -35,6 +35,7 @@ public class AuthService {
         validarEmailLivre(request.email());
         Usuario usuario = novoUsuario(request.nome(), request.email(), request.senha(), request.telefone(),
             request.documentoIdentidade(), request.fotoUrl(), PerfilUsuario.PACIENTE);
+        if (Boolean.TRUE.equals(request.aceiteTermos())) PerfilService.registrarAceite(usuario);
         usuarios.save(usuario);
         Paciente paciente = new Paciente(usuario);
         paciente.dataNascimento = request.dataNascimento();
@@ -53,6 +54,7 @@ public class AuthService {
             throw ErroNegocio.conflito("Já existe um profissional com este registro CREFITO.");
         Usuario usuario = novoUsuario(request.nome(), request.email(), request.senha(), request.telefone(),
             request.documentoIdentidade(), request.fotoUrl(), PerfilUsuario.FISIO);
+        if (Boolean.TRUE.equals(request.aceiteTermos())) PerfilService.registrarAceite(usuario);
         usuarios.save(usuario);
         Fisioterapeuta fisio = new Fisioterapeuta(usuario);
         fisio.crefitoNumero = request.crefitoNumero().trim();

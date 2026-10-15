@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FisioterapeutaRepository extends JpaRepository<Fisioterapeuta, Long> {
+    @EntityGraph(attributePaths = "usuario")
+    List<Fisioterapeuta> findAllByOrderByUsuario_NomeAsc();
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = "usuario")
     @Query("select f from Fisioterapeuta f where f.usuario.id = :id")

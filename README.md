@@ -12,8 +12,8 @@ O KINETIX conecta pacientes, fisioterapeutas e clinicas por meio de uma aplicaca
 
 - Backend: Java 21, Spring Boot 3, Spring Security, JWT, Spring Data JPA, Validation e SQL Server.
 - Web: React, Vite, TailwindCSS, Axios e React Router.
-- Mobile: React Native, Expo, Expo Router e Axios.
-- Infraestrutura: Docker, Docker Compose, GitHub Actions, Render/Railway e Vercel/Netlify.
+- Mobile: previsto para uma etapa futura, ainda sem implementacao neste repositorio.
+- Execucao: ambiente local ou Docker Compose; sem deploy publico configurado.
 
 ## Entrega Web
 
@@ -27,6 +27,31 @@ Telas:
 - `/pacientes/:id`: acompanhamento clinico restrito ao profissional vinculado.
 - `/configuracao-perfil`: endereco, foto e telefone adicional; profissionais gerenciam apresentacao, especialidades e servicos.
 - `/prescritor?paciente=:id`: prescricao e cadastro de exercicios.
+- `/planos`: planos publicos e solicitacoes opcionais de assinatura do profissional.
+- `/financeiro`: valores de atendimentos realizados e previstos, com filtro de datas.
+- `/administracao`: verificacao manual de CREFITO, moderacao de avaliacoes, planos e especialidades.
+- `/privacidade`: termos da versao academica e registro de aceite para contas existentes.
+- `/termos#termos` e `/privacidade#privacidade`: leitura publica dos Termos de Uso
+  e da Politica de Privacidade, inclusive antes do cadastro. Os links do cadastro
+  abrem outra aba para preservar o formulario. Versao atual: `2026-10-15.2`.
+
+Pacientes podem avaliar sessoes realizadas pela agenda, consultar seus proprios
+prontuarios e usar o cronometro das rotinas com duracao prescrita. Avaliacoes ficam
+pendentes ate a moderacao. RG e opcional no perfil, separado do CPF.
+
+### Administrador Local
+
+Nao existe cadastro publico de administradores. Para criar uma conta administrativa,
+configure `KINETIX_ADMIN_EMAIL` e `KINETIX_ADMIN_PASSWORD` no `.env` local ignorado
+pelo Git e reinicie a API. A senha deve ter pelo menos 12 caracteres e no maximo
+72 bytes UTF-8. Entre pelo login normal; a conta sera direcionada a `/administracao`.
+A inicializacao nao promove contas de pacientes/profissionais nem altera a senha
+de um administrador existente. Depois da criacao, as duas variaveis podem ser removidas.
+
+Na administracao: confira o CREFITO antes de liberar o perfil, modere avaliacoes e
+cadastre os planos com os valores/beneficios definidos pela equipe. Em Agendamentos,
+confirme ou cancele consultas com justificativa, sem acesso aos prontuarios.
+Assinaturas sao solicitacoes administrativas: a ativacao manual nao comprova pagamento.
 
 ### Demonstracao em Tres Processos
 
@@ -45,13 +70,25 @@ Remover uma disponibilidade ou desativar um servico nao apaga consultas existent
 
 ## Estrutura
 
-Entregaveis:
+```text
+back_end/
+  src/main/java/           API: controllers, services, repositories e entidades
+  src/main/resources/     Configuracao e migrations do banco
+  src/test/               Testes Java (estrutura padrao do Maven)
+  src/docs/database/      SQL original e orientacoes do banco
+web/
+  src/pages/              Paginas do site
+  src/components/         Componentes reutilizados nas paginas
+  public/                 Logos e arquivos publicos
+  testes/navegador/       Testes automaticos, nao sao paginas do site
+scripts/                  Teste de integracao com API e banco reais
+docker-compose.yml        Execucao opcional em containers
+```
 
-- DER e dicionário de dados no documento norteador do projeto.
-- Scripts SQL Server em `back_end/src/docs/database/`.
-- Docker Compose em `docker-compose.yml`.
-- Estrutura Spring Boot em `back_end/`.
-- Cliente web React em `web/`.
+O documento norteador na raiz e o PDF de referencia em `back_end/` foram preservados.
+O `.env` guarda a configuracao local e nao deve ser enviado ao Git.
+`node_modules/`, `target/` e `dist/` sao gerados pelas ferramentas e ignorados pelo
+Git. Nao sao copias do codigo: contem dependencias, compilacoes e a versao de producao.
 
 ## Decisoes Arquiteturais
 
@@ -59,7 +96,8 @@ Entregaveis:
 - SQL Server como banco relacional principal, adequado para integridade referencial e auditoria.
 - JWT para autenticacao stateless.
 - BCrypt para armazenamento seguro de senhas.
-- Auditoria de acesso a dados clinicos. Registro persistente de consentimento ainda pendente.
+- Auditoria de acesso a dados clinicos e registro de versao/data do aceite dos termos.
+  Contas antigas podem registrar o aceite em `/privacidade`; nao e inventado aceite retroativo.
 
 ## Riscos Tecnicos
 
@@ -82,11 +120,13 @@ Exemplo de cadastro de paciente:
   "nome": "Usuario Paciente",
   "email": "paciente@kinetix.com",
   "senha": "Senha@123",
+  "documentoIdentidade": "52998224725",
   "telefone": "11999999999",
   "dataNascimento": "2000-01-15",
   "cidade": "Barueri",
   "bairro": "Centro",
-  "uf": "SP"
+  "uf": "SP",
+  "aceiteTermos": true
 }
 ```
 
@@ -140,6 +180,9 @@ Backend: execute `mvn test` dentro de `back_end/`. Os testes usam BCrypt e JWT r
 Frontend: com Microsoft Edge instalado, execute `npm run build` e depois `npm test` dentro de `web/`.
 O teste inicia automaticamente um preview na porta 4173 e o encerra ao terminar.
 Os testes de navegador usam respostas simuladas da API e verificam desktop e mobile.
+Ficam em `web/testes/navegador/`: `autenticacao.spec.js`, `atendimentos.spec.js`
+e `gestao-e-perfil.spec.js`. A antiga pasta `e2e` foi substituida por esse nome.
+`test-results/` e `playwright-report/` sao resultados descartaveis, recriados nos testes.
 
 Para testar cadastro, login, perfis e persistencia com os servicos reais, execute na raiz:
 
@@ -149,13 +192,30 @@ powershell -ExecutionPolicy Bypass -File scripts/test-auth.ps1
 
 Esse teste cria duas contas sinteticas que permanecem no banco.
 
-## Pendencias
+## Cobertura do Documento Norteador
+
+- UC01/02 e UC13/14: login e cadastro por perfil, validacao e persistencia.
+- UC03: visualizacao de precos/beneficios e escolha opcional de plano.
+- UC04/05: perfil/clinica, especialidades, servicos e precos.
+- UC06: disponibilidades publicadas com validacao de conflitos.
+- UC07/08: agenda profissional/administrativa, confirmacao e cancelamento justificado.
+- UC09 a UC12: prescricoes, prontuario, historico e resumo de consultas.
+- UC15 a UC17: configuracao/consulta do perfil, endereco, documentos e foto persistente.
+- UC18 a UC22: busca publica, filtros, proximidade e perfil profissional.
+- UC23 a UC27: solicitacao/reserva, cancelamento e historico do paciente.
+
+O financeiro contabiliza valores contratados nas consultas, nao dinheiro recebido.
+A escolha de plano nao limita funcionalidades nem cobra automaticamente; o documento
+nao define bloqueios por plano. Nao ha verificacao automatica de identidade por CPF/RG.
+
+## Pendencias Externas e Proxima Etapa
 
 - Aplicativo React Native/Expo: a pasta mobile ainda nao existe no repositorio.
-- Interface administrativa para verificacao CREFITO e moderacao de avaliacoes (as rotas administrativas ja existem).
-- Planos/assinaturas e dashboard financeiro completo, fora do fluxo minimo de atendimento desta entrega.
-- Registro persistente de consentimento e documentos de termos/privacidade.
-- Testes completos de migrations, concorrencia e fluxos clinicos com SQL Server.
+- Push RF05 depende do aplicativo/dispositivo mobile e conectividade com o provedor.
+- Pagamentos reais dependem de conta de vendedor, escolha do provedor, credenciais e validacao de webhooks. Ainda nao integrados.
+- HTTPS, disponibilidade publica e meta de busca inferior a 2 segundos precisam de infraestrutura e medicao; nao sao garantidos pelo ambiente local.
+- Antes de usar dados reais: revisar privacidade, responsaveis/canais, retencao, backups e seguranca operacional.
+- O DOCX ainda possui espacos destinados ao DER, prints e manual final, que devem ser preenchidos pela equipe com a versao entregue.
 - Atualizar as dependencias de ferramentas do Tailwind: o audit ainda aponta avisos que exigem migracao de versao principal.
 
 O catalogo de exercicios pode ser alimentado por fisioterapeutas autenticados no prescritor.

@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itbm.inf2fm.kinetix.config.SegurancaConfig;
 import com.itbm.inf2fm.kinetix.controller.ApiExceptionHandler;
 import com.itbm.inf2fm.kinetix.controller.AuthController;
+import com.itbm.inf2fm.kinetix.controller.AdminController;
+import com.itbm.inf2fm.kinetix.service.AdminService;
+import com.itbm.inf2fm.kinetix.service.ProfissionalService;
+import com.itbm.inf2fm.kinetix.service.ConsultaService;
 import com.itbm.inf2fm.kinetix.model.entity.Usuario;
 import com.itbm.inf2fm.kinetix.model.repository.*;
 import com.itbm.inf2fm.kinetix.service.AuthService;
@@ -48,7 +52,7 @@ class AuthFlowTest {
     @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class, FlywayAutoConfiguration.class})
     @Import({SegurancaConfig.class, AuthController.class, ApiExceptionHandler.class,
-        AuthService.class, JwtService.class, Probe.class})
+        AuthService.class, JwtService.class, Probe.class, AdminController.class})
     static class Config {}
 
     @RestController
@@ -69,6 +73,10 @@ class AuthFlowTest {
     @MockitoBean PacienteRepository pacientes;
     @MockitoBean FisioterapeutaRepository fisioterapeutas;
     @MockitoBean EspecialidadeRepository especialidades;
+    @MockitoBean AdminService admin;
+    @MockitoBean ProfissionalService profissionais;
+    @MockitoBean ConsultaService consultas;
+    @Autowired JwtService jwtService;
     private final Map<String, Usuario> contas = new ConcurrentHashMap<>();
 
     @BeforeEach
@@ -87,11 +95,28 @@ class AuthFlowTest {
         });
     }
 
+    @Test
+    void rotasAdministrativasExigemPerfilAdmin() throws Exception {
+        String tokenPaciente = json.readTree(paciente()).get("token").asText();
+        for (String rota : new String[] { "fisioterapeutas", "avaliacoes", "assinaturas", "consultas" }) {
+            mvc.perform(get("/api/v1/admin/" + rota)).andExpect(status().isUnauthorized());
+            mvc.perform(get("/api/v1/admin/" + rota).header("Authorization", "Bearer " + tokenPaciente))
+                .andExpect(status().isForbidden());
+        }
+        verifyNoInteractions(admin);
+        Usuario conta = new Usuario(); conta.id = 99L; conta.nome = "Admin teste"; conta.email = "admin@example.com";
+        conta.perfil = com.itbm.inf2fm.kinetix.model.enums.PerfilUsuario.ADMIN;
+        String tokenAdmin = jwtService.emitir(conta).token();
+        when(admin.profissionais()).thenReturn(java.util.List.of());
+        mvc.perform(get("/api/v1/admin/fisioterapeutas").header("Authorization", "Bearer " + tokenAdmin))
+            .andExpect(status().isOk()).andExpect(content().json("[]"));
+    }
+
     private String paciente() throws Exception {
         return mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
             .content("""
                 {"nome":"Paciente Teste","email":"PACIENTE@example.com","senha":"Senha123!","uf":"sp",
-                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"529.982.247-25"}
+                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"529.982.247-25","aceiteTermos":true}
                 """))
             .andExpect(status().isCreated()).andExpect(jsonPath("$.perfil").value("PACIENTE"))
             .andReturn().getResponse().getContentAsString();
@@ -102,6 +127,7 @@ class AuthFlowTest {
         paciente();
         assertThat(encoder.matches("Senha123!", contas.get("paciente@example.com").senhaHash)).isTrue();
         assertThat(contas.get("paciente@example.com").documentoIdentidade).isEqualTo("52998224725");
+        assertThat(contas.get("paciente@example.com").termosAceitosEm).isNotNull();
         verify(pacientes).save(argThat(p -> "SP".equals(p.uf)));
         String response = mvc.perform(post("/api/v1/auth/login").contentType("application/json")
             .content("""
@@ -121,7 +147,7 @@ class AuthFlowTest {
         mvc.perform(post("/api/v1/auth/fisioterapeutas").contentType("application/json")
             .content("""
                 {"nome":"Fisio Teste","email":"fisio@example.com","senha":"Senha123!",
-                 "crefitoNumero":"12345","crefitoUf":"sp","cidade":"Barueri","uf":"sp","documentoIdentidade":"52998224725"}
+                 "crefitoNumero":"12345","crefitoUf":"sp","cidade":"Barueri","uf":"sp","documentoIdentidade":"52998224725","aceiteTermos":true}
                 """))
             .andExpect(status().isCreated()).andExpect(jsonPath("$.perfil").value("FISIO"));
         verify(fisioterapeutas).save(argThat(f -> "SP".equals(f.crefitoUf) && !f.crefitoVerificado));
@@ -140,7 +166,7 @@ class AuthFlowTest {
         mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
             .content("""
                 {"nome":"Outro","email":"paciente@example.com","senha":"Senha123!","uf":"SP",
-                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"52998224725"}
+                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"52998224725","aceiteTermos":true}
                 """))
             .andExpect(status().isConflict());
         verify(usuarios, times(1)).save(any(Usuario.class));
@@ -177,7 +203,7 @@ class AuthFlowTest {
         for (String senha : new String[] { "a".repeat(73), "\u00e9".repeat(37) }) {
             mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
                 .content(json.writeValueAsString(Map.of("nome", "Teste", "email", "teste@example.com", "senha", senha,
-                    "documentoIdentidade", "52998224725", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01"))))
+                    "documentoIdentidade", "52998224725", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "aceiteTermos", true))))
                 .andExpect(status().isBadRequest());
             mvc.perform(post("/api/v1/auth/login").contentType("application/json")
                 .content(json.writeValueAsString(Map.of("email", "teste@example.com", "senha", senha))))
@@ -189,8 +215,8 @@ class AuthFlowTest {
     @Test
     void cadastroExigeDadosEValidaNascimento() throws Exception {
         Map<String, Object> payload = new java.util.HashMap<>(Map.of("nome", "Teste", "email", "teste@example.com",
-            "senha", "Senha123!", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", "52998224725"));
-        for (String field : new String[] { "telefone", "cidade", "uf", "dataNascimento", "documentoIdentidade" }) {
+            "senha", "Senha123!", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", "52998224725", "aceiteTermos", true));
+        for (String field : new String[] { "telefone", "cidade", "uf", "dataNascimento", "documentoIdentidade", "aceiteTermos" }) {
             Map<String, Object> invalid = new java.util.HashMap<>(payload);
             invalid.remove(field);
             mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(invalid)))
@@ -213,7 +239,7 @@ class AuthFlowTest {
     void cpfComDigitosInvalidosNaoCriaConta() throws Exception {
         for (String cpf : new String[] { "11111111111", "00000000000", "52998224724", "123", "abc" }) {
             var payload = Map.of("nome", "Teste", "email", "teste@example.com", "senha", "Senha123!",
-                "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", cpf);
+                "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", cpf, "aceiteTermos", true);
             mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(payload)))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("CPF")));
         }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AuthShell from "../components/AuthShell.jsx";
 import PhoneFields, { phoneToInternational } from "../components/PhoneFields.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
@@ -35,8 +35,9 @@ const fieldClass = "mt-1 h-11 w-full rounded border border-slate-300 bg-white px
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { registerPaciente, registerFisioterapeuta } = useAuth();
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(() => ({ ...initialForm, perfil: params.get("perfil") === "FISIO" ? "FISIO" : "PACIENTE" }));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -59,6 +60,7 @@ export default function RegisterPage() {
           senha: form.senha,
           telefone,
           documentoIdentidade: form.cpf.replace(/\D/g, ""),
+          aceiteTermos: form.aceiteTermos,
           dataNascimento: form.dataNascimento || null,
           cidade: form.cidade || null,
           bairro: form.bairro || null,
@@ -72,6 +74,7 @@ export default function RegisterPage() {
           telefone,
           documentoIdentidade: form.cpf.replace(/\D/g, ""),
           crefitoNumero: form.crefitoNumero,
+          aceiteTermos: form.aceiteTermos,
           crefitoUf: form.crefitoUf,
           nomeClinica: form.nomeClinica || null,
           apresentacao: form.apresentacao || null,
@@ -147,6 +150,7 @@ export default function RegisterPage() {
 
           {form.perfil === "FISIO" && (
             <>
+              <Link to="/planos" target="_blank" rel="noopener noreferrer" className="kx-link sm:col-span-2">Ver planos de assinatura (opcional)</Link>
               <label className="block">
                 <span className={labelClass}>CREFITO</span>
                 <input className={fieldClass} value={form.crefitoNumero} onChange={(event) => update("crefitoNumero", event.target.value)} required />
@@ -208,7 +212,7 @@ export default function RegisterPage() {
 
         <label className="flex items-start gap-3 rounded border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-darkTheme-border dark:bg-darkTheme-surface dark:text-slate-300">
           <input className="mt-1" type="checkbox" checked={form.aceiteTermos} onChange={(event) => update("aceiteTermos", event.target.checked)} required />
-          <span>Aceito os termos de uso e a política de privacidade.</span>
+          <span>Aceito os <Link className="underline" to="/termos#termos" target="_blank" rel="noopener noreferrer">Termos de Uso</Link> e declaro ciência da <Link className="underline" to="/privacidade#privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</Link>.</span>
         </label>
 
         {error && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
