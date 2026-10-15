@@ -90,7 +90,8 @@ class AuthFlowTest {
     private String paciente() throws Exception {
         return mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
             .content("""
-                {"nome":"Paciente Teste","email":"PACIENTE@example.com","senha":"Senha123!","uf":"sp"}
+                {"nome":"Paciente Teste","email":"PACIENTE@example.com","senha":"Senha123!","uf":"sp",
+                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"529.982.247-25"}
                 """))
             .andExpect(status().isCreated()).andExpect(jsonPath("$.perfil").value("PACIENTE"))
             .andReturn().getResponse().getContentAsString();
@@ -100,6 +101,7 @@ class AuthFlowTest {
     void cadastroLoginETokenPaciente() throws Exception {
         paciente();
         assertThat(encoder.matches("Senha123!", contas.get("paciente@example.com").senhaHash)).isTrue();
+        assertThat(contas.get("paciente@example.com").documentoIdentidade).isEqualTo("52998224725");
         verify(pacientes).save(argThat(p -> "SP".equals(p.uf)));
         String response = mvc.perform(post("/api/v1/auth/login").contentType("application/json")
             .content("""
@@ -119,7 +121,7 @@ class AuthFlowTest {
         mvc.perform(post("/api/v1/auth/fisioterapeutas").contentType("application/json")
             .content("""
                 {"nome":"Fisio Teste","email":"fisio@example.com","senha":"Senha123!",
-                 "crefitoNumero":"12345","crefitoUf":"sp","cidade":"Barueri","uf":"sp"}
+                 "crefitoNumero":"12345","crefitoUf":"sp","cidade":"Barueri","uf":"sp","documentoIdentidade":"52998224725"}
                 """))
             .andExpect(status().isCreated()).andExpect(jsonPath("$.perfil").value("FISIO"));
         verify(fisioterapeutas).save(argThat(f -> "SP".equals(f.crefitoUf) && !f.crefitoVerificado));
@@ -137,7 +139,8 @@ class AuthFlowTest {
         paciente();
         mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
             .content("""
-                {"nome":"Outro","email":"paciente@example.com","senha":"Senha123!"}
+                {"nome":"Outro","email":"paciente@example.com","senha":"Senha123!","uf":"SP",
+                 "telefone":"+5511999999999","dataNascimento":"2000-01-01","cidade":"Barueri","documentoIdentidade":"52998224725"}
                 """))
             .andExpect(status().isConflict());
         verify(usuarios, times(1)).save(any(Usuario.class));
@@ -173,11 +176,46 @@ class AuthFlowTest {
     void senhaAcimaDoLimiteBcryptRetornaErroControlado() throws Exception {
         for (String senha : new String[] { "a".repeat(73), "\u00e9".repeat(37) }) {
             mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json")
-                .content(json.writeValueAsString(Map.of("nome", "Teste", "email", "teste@example.com", "senha", senha))))
+                .content(json.writeValueAsString(Map.of("nome", "Teste", "email", "teste@example.com", "senha", senha,
+                    "documentoIdentidade", "52998224725", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01"))))
                 .andExpect(status().isBadRequest());
             mvc.perform(post("/api/v1/auth/login").contentType("application/json")
                 .content(json.writeValueAsString(Map.of("email", "teste@example.com", "senha", senha))))
                 .andExpect(status().isUnauthorized());
+        }
+        verify(usuarios, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void cadastroExigeDadosEValidaNascimento() throws Exception {
+        Map<String, Object> payload = new java.util.HashMap<>(Map.of("nome", "Teste", "email", "teste@example.com",
+            "senha", "Senha123!", "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", "52998224725"));
+        for (String field : new String[] { "telefone", "cidade", "uf", "dataNascimento", "documentoIdentidade" }) {
+            Map<String, Object> invalid = new java.util.HashMap<>(payload);
+            invalid.remove(field);
+            mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+        }
+        for (String date : new String[] { "1899-12-31", "2017-01-01" }) {
+            payload.put("dataNascimento", date);
+            mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest());
+        }
+        for (String date : new String[] { "1900-01-01", "2016-12-31" }) {
+            payload.put("dataNascimento", date);
+            payload.put("email", date + "@example.com");
+            mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(payload)))
+                .andExpect(status().isCreated());
+        }
+    }
+
+    @Test
+    void cpfComDigitosInvalidosNaoCriaConta() throws Exception {
+        for (String cpf : new String[] { "11111111111", "00000000000", "52998224724", "123", "abc" }) {
+            var payload = Map.of("nome", "Teste", "email", "teste@example.com", "senha", "Senha123!",
+                "telefone", "+5511999999999", "cidade", "Barueri", "uf", "SP", "dataNascimento", "2000-01-01", "documentoIdentidade", cpf);
+            mvc.perform(post("/api/v1/auth/pacientes").contentType("application/json").content(json.writeValueAsString(payload)))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.mensagem").value(org.hamcrest.Matchers.containsString("CPF")));
         }
         verify(usuarios, never()).save(any(Usuario.class));
     }

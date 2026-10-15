@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import PrescritorPage from "./pages/PrescritorPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function PrivateRoute({ children, perfil }) {
   const { session } = useAuth();
@@ -39,7 +40,7 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/85 text-slate-700 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-white dark:border-darkTheme-border dark:bg-darkTheme-panel/85 dark:text-darkTheme-text dark:hover:bg-darkTheme-panel"
+      className="absolute right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/85 text-slate-700 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-white dark:border-darkTheme-border dark:bg-darkTheme-panel/85 dark:text-darkTheme-text dark:hover:bg-darkTheme-panel"
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       title={isDark ? "Tema claro" : "Tema escuro"}
     >
@@ -57,6 +58,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
+          <Route path="/configuracao-perfil" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route
             path="/dashboard"
             element={

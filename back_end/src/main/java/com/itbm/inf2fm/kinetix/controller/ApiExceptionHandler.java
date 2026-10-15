@@ -10,6 +10,11 @@ import java.time.OffsetDateTime;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErroResumo> fotoMuitoGrande() {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(new ErroResumo(OffsetDateTime.now(),
+            413, "Arquivo muito grande", "A foto enviada deve ter até 2 MB após o redimensionamento."));
+    }
     @ExceptionHandler(ErroNegocio.class)
     public ResponseEntity<ErroResumo> negocio(ErroNegocio ex) {
         HttpStatus status = ex.getStatus();
@@ -20,7 +25,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResumo> validacao(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-            .findFirst().map(e -> e.getField() + ": " + e.getDefaultMessage()).orElse("Confira os dados enviados.");
+            .findFirst().map(e -> ("documentoIdentidade".equals(e.getField()) ? "CPF" : e.getField())
+                + ": " + e.getDefaultMessage()).orElse("Confira os dados enviados.");
         return ResponseEntity.badRequest().body(new ErroResumo(OffsetDateTime.now(), 400, "Requisição inválida", message));
     }
 

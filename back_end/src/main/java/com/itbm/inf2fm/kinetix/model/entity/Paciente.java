@@ -14,6 +14,12 @@ public class Paciente {
     public Usuario usuario;
     @Column(name = "data_nascimento")
     public LocalDate dataNascimento;
+    @Column(length = 9)
+    public String cep;
+    @Column(length = 160)
+    public String logradouro;
+    @Column(length = 20)
+    public String numero;
     @Column(length = 100)
     public String cidade;
     @Column(length = 100)

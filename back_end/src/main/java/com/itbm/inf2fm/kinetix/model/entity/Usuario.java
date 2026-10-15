@@ -17,6 +17,11 @@ public class Usuario {
     public String senhaHash;
     @Column(length = 30)
     public String telefone;
+    @Column(name = "telefone_adicional", length = 16)
+    public String telefoneAdicional;
+    @Column(name = "pais_telefone_adicional", length = 2)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.CHAR)
+    public String paisTelefoneAdicional;
     @Column(name = "documento_identidade", length = 30)
     public String documentoIdentidade;
     @Column(name = "foto_url", length = 500)

@@ -56,11 +56,15 @@ export function AuthProvider({ children }) {
 
   async function registerPaciente(payload) {
     const { data } = await api.post("/api/v1/auth/pacientes", payload);
+    setAuthToken(data.token);
+    setSession(data);
     return data;
   }
 
   async function registerFisioterapeuta(payload) {
     const { data } = await api.post("/api/v1/auth/fisioterapeutas", payload);
+    setAuthToken(data.token);
+    setSession(data);
     return data;
   }
 

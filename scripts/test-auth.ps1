@@ -29,8 +29,8 @@ function Assert-Status {
 # Synthetic accounts are kept to allow checking persistence after a restart.
 $suffix = [Guid]::NewGuid().ToString('N')
 $password = 'TesteKinetix@123'
-$patient = @{ nome = 'Paciente Teste Automatizado'; email = "paciente.$suffix@example.com"; senha = $password; cidade = 'Barueri'; uf = 'SP' }
-$physio = @{ nome = 'Fisio Teste Automatizado'; email = "fisio.$suffix@example.com"; senha = $password; crefitoNumero = $suffix.Substring(0, 20); crefitoUf = 'SP'; cidade = 'Barueri'; uf = 'SP'; atendeOnline = $false; especialidadesIds = @() }
+$patient = @{ nome = 'Paciente Teste Automatizado'; email = "paciente.$suffix@example.com"; senha = $password; cidade = 'Barueri'; uf = 'SP'; telefone = '+5511999999999'; dataNascimento = '2000-01-01'; documentoIdentidade = '52998224725' }
+$physio = @{ nome = 'Fisio Teste Automatizado'; email = "fisio.$suffix@example.com"; senha = $password; crefitoNumero = $suffix.Substring(0, 20); crefitoUf = 'SP'; cidade = 'Barueri'; uf = 'SP'; atendeOnline = $false; especialidadesIds = @(); documentoIdentidade = '52998224725' }
 
 foreach ($case in @(
     @{ Name = 'Paciente'; Payload = $patient; Path = '/api/v1/auth/pacientes'; Profile = '/api/v1/paciente/perfil'; Role = 'PACIENTE' },

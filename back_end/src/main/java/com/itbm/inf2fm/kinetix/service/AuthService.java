@@ -106,7 +106,7 @@ public class AuthService {
         usuario.email = email.trim().toLowerCase();
         usuario.senhaHash = passwordEncoder.encode(senha);
         usuario.telefone = telefone;
-        usuario.documentoIdentidade = documento;
+        usuario.documentoIdentidade = documento == null ? null : documento.replaceAll("\\D", "");
         usuario.fotoUrl = foto;
         usuario.perfil = perfil;
         usuario.ativo = true;

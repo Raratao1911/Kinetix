@@ -3,6 +3,7 @@ import { UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthShell from "../components/AuthShell.jsx";
+import PhoneFields, { phoneToInternational } from "../components/PhoneFields.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
 
 const initialForm = {
@@ -11,6 +12,8 @@ const initialForm = {
   senha: "",
   perfil: "PACIENTE",
   telefone: "",
+  cpf: "",
+  paisTelefone: "BR",
   dataNascimento: "",
   cidade: "",
   bairro: "",
@@ -27,6 +30,7 @@ const initialForm = {
 };
 
 const labelClass = "text-sm font-medium text-slate-700 dark:text-slate-300";
+const states = "AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO".split(" ");
 const fieldClass = "mt-1 h-11 w-full rounded border border-slate-300 bg-white px-3 outline-none focus:border-sky dark:border-darkTheme-border dark:bg-darkTheme-surface dark:text-darkTheme-text";
 
 export default function RegisterPage() {
@@ -37,6 +41,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   function update(field, value) {
+    if (field === "cpf") value = value.replace(/\D/g, "").slice(0, 11);
     setForm((current) => ({ ...current, [field]: value }));
   }
 
@@ -46,12 +51,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const telefone = phoneToInternational(form.telefone, form.paisTelefone, form.perfil === "PACIENTE");
       if (form.perfil === "PACIENTE") {
         await registerPaciente({
           nome: form.nome,
           email: form.email,
           senha: form.senha,
-          telefone: form.telefone || null,
+          telefone,
+          documentoIdentidade: form.cpf.replace(/\D/g, ""),
           dataNascimento: form.dataNascimento || null,
           cidade: form.cidade || null,
           bairro: form.bairro || null,
@@ -62,7 +69,8 @@ export default function RegisterPage() {
           nome: form.nome,
           email: form.email,
           senha: form.senha,
-          telefone: form.telefone || null,
+          telefone,
+          documentoIdentidade: form.cpf.replace(/\D/g, ""),
           crefitoNumero: form.crefitoNumero,
           crefitoUf: form.crefitoUf,
           nomeClinica: form.nomeClinica || null,
@@ -77,9 +85,9 @@ export default function RegisterPage() {
           especialidadesIds: []
         });
       }
-      navigate("/login");
+      navigate("/configuracao-perfil", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.mensagem ?? err.response?.data?.message ?? "Não foi possível cadastrar.");
+      setError(err.response?.data?.mensagem ?? err.response?.data?.message ?? err.message ?? "Não foi possível cadastrar.");
     } finally {
       setLoading(false);
     }
@@ -112,24 +120,27 @@ export default function RegisterPage() {
             <input className={fieldClass} type="password" value={form.senha} onChange={(event) => update("senha", event.target.value)} required minLength={8} maxLength={72} />
           </label>
 
-          <label className="block">
-            <span className={labelClass}>Perfil</span>
-            <select className={fieldClass} value={form.perfil} onChange={(event) => update("perfil", event.target.value)}>
-              <option value="PACIENTE">Paciente</option>
-              <option value="FISIO">Fisioterapeuta</option>
-            </select>
-          </label>
-
-          <label className="block">
-            <span className={labelClass}>Telefone</span>
-            <input className={fieldClass} value={form.telefone} onChange={(event) => update("telefone", event.target.value)} />
-          </label>
+          <div className="min-w-0 space-y-4">
+            <label className="block">
+              <span className={labelClass}>Perfil</span>
+              <select className={fieldClass} value={form.perfil} onChange={(event) => update("perfil", event.target.value)}>
+                <option value="PACIENTE">Paciente</option>
+                <option value="FISIO">Fisioterapeuta</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className={labelClass}>CPF</span>
+              <input className={fieldClass} inputMode="numeric" autoComplete="off" pattern="[0-9]{11}" placeholder="00000000000" required value={form.cpf} onChange={(event) => update("cpf", event.target.value)} />
+            </label>
+          </div>
+          <PhoneFields country={form.paisTelefone} value={form.telefone} required={form.perfil === "PACIENTE"}
+            onCountryChange={value => update("paisTelefone", value)} onChange={value => update("telefone", value)} />
 
           {form.perfil === "PACIENTE" && (
             <>
               <label className="block">
                 <span className={labelClass}>Data de nascimento</span>
-                <input className={fieldClass} type="date" value={form.dataNascimento} onChange={(event) => update("dataNascimento", event.target.value)} />
+                <input className={fieldClass} type="date" min="1900-01-01" max="2016-12-31" required value={form.dataNascimento} onChange={(event) => update("dataNascimento", event.target.value)} />
               </label>
             </>
           )}
@@ -141,7 +152,7 @@ export default function RegisterPage() {
                 <input className={fieldClass} value={form.crefitoNumero} onChange={(event) => update("crefitoNumero", event.target.value)} required />
               </label>
               <label className="block">
-                <span className={labelClass}>UF do CREFITO</span>
+                <span className={labelClass}>Estado do CREFITO</span>
                 <input className={fieldClass} maxLength={2} value={form.crefitoUf} onChange={(event) => update("crefitoUf", event.target.value.toUpperCase())} required />
               </label>
               <label className="block sm:col-span-2">
@@ -165,12 +176,15 @@ export default function RegisterPage() {
 
           <label className="block">
             <span className={labelClass}>Cidade</span>
-            <input className={fieldClass} value={form.cidade} onChange={(event) => update("cidade", event.target.value)} required={form.perfil === "FISIO"} />
+            <input className={fieldClass} maxLength={100} value={form.cidade} onChange={(event) => update("cidade", event.target.value)} required />
           </label>
 
           <label className="block">
-            <span className={labelClass}>UF</span>
-            <input className={fieldClass} maxLength={2} value={form.uf} onChange={(event) => update("uf", event.target.value.toUpperCase())} required={form.perfil === "FISIO"} />
+            <span id="cadastro-estado" className={labelClass}>Estado</span>
+            <select aria-labelledby="cadastro-estado" className={fieldClass} value={form.uf} onChange={(event) => update("uf", event.target.value)} required>
+              <option value="">Selecione</option>
+              {states.map(state => <option key={state} value={state}>{state}</option>)}
+            </select>
           </label>
 
           <label className="block">

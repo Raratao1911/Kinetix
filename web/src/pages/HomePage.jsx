@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useLayoutEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Brand from "../components/Brand.jsx";
 import {
   Activity,
@@ -35,6 +35,11 @@ const heroActions = [
 ];
 
 export default function HomePage() {
+  const location = useLocation();
+  useLayoutEffect(() => {
+    if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.key, location.hash]);
+
   return (
     <main className="min-h-screen bg-slate-50 text-ink dark:bg-darkTheme-bg dark:text-darkTheme-text">
       <div className="border-b border-slate-200 bg-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
@@ -56,9 +61,7 @@ export default function HomePage() {
 
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-sky text-white shadow-sm dark:border-darkTheme-border dark:bg-darkTheme-panel">
         <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-3">
-          <Link className="flex items-center gap-3" to="/">
-            <Brand inverse />
-          </Link>
+          <Brand />
 
           <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 text-sm font-semibold">
             <a className="hover:text-mint" href="#kinetix">O Kinetix</a>

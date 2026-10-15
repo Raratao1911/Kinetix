@@ -5,6 +5,7 @@ target/
 # IDEs
 .idea/
 .vscode/
+.vs/
 *.iml
 
 # Node / frontend

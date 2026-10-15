@@ -1,13 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-export default function Brand({ inverse = false, lightBackground = "bg-sky" }) {
-  const textColor = inverse ? "text-white" : "text-ink dark:text-darkTheme-text";
-  const subtitleColor = inverse
-    ? "text-white/70"
-    : "text-slate-500 dark:text-darkTheme-muted";
-
+export default function Brand({ lightBackground = "bg-sky" }) {
   return (
-    <div className="flex shrink-0 items-center gap-3">
+    <Link to="/" aria-label="Ir para a página inicial" title="Página inicial" className="inline-flex w-fit shrink-0 rounded transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current">
       <span className={`flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded ${lightBackground} dark:bg-transparent sm:h-36 sm:w-36`}>
         <img
           className="block h-[180%] w-[180%] max-w-none object-contain dark:hidden"
@@ -21,12 +17,6 @@ export default function Brand({ inverse = false, lightBackground = "bg-sky" }) {
           aria-hidden="true"
         />
       </span>
-      <span className={textColor}>
-        <strong className="block text-2xl leading-none">KINETIX</strong>
-        <span className={`mt-1 block text-sm font-medium ${subtitleColor}`}>
-          Movimento inteligente
-        </span>
-      </span>
-    </div>
+    </Link>
   );
 }

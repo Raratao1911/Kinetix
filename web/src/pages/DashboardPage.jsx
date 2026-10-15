@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, LogOut, Activity, Users } from "lucide-react";
+import { CalendarDays, LogOut, Activity, Users, Settings, UserRound, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client.js";
 import Brand from "../components/Brand.jsx";
@@ -17,22 +17,39 @@ export default function DashboardPage() {
   const [escalaEva, setEscalaEva] = useState(0);
   const [observacao, setObservacao] = useState("");
   const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
     let active = true;
     const requests = fisio
       ? [api.get("/api/v1/consultas/minhas"), api.get("/api/v1/fisioterapeuta/pacientes")]
       : [api.get("/api/v1/consultas/minhas"), api.get("/api/v1/paciente/diario-dor"), api.get("/api/v1/paciente/prescricoes")];
-    Promise.all(requests).then(([agenda, dados, planos]) => {
+    requests.push(api.get("/api/v1/perfil"));
+    Promise.allSettled(requests).then(results => {
       if (!active) return;
-      setConsultas(agenda.data);
-      if (fisio) setPacientes(dados.data);
-      else { setRegistros(dados.data); setPrescricoes(planos.data); }
-    }).catch(err => {
-      if (active) setError(err.response?.data?.mensagem ?? "Não foi possível carregar sua conta.");
+      const setters = fisio ? [setConsultas, setPacientes, setProfile] : [setConsultas, setRegistros, setPrescricoes, setProfile];
+      const labels = fisio ? ["consultas", "pacientes", "perfil"] : ["consultas", "diário de dor", "rotinas", "perfil"];
+      const failures = [];
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") setters[index](result.value.data);
+        else failures.push(labels[index]);
+      });
+      setError(failures.length ? `Não foi possível carregar: ${failures.join(", ")}. Tente atualizar a página.` : "");
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [fisio]);
+  }, [fisio, session.usuarioId]);
+
+  useEffect(() => {
+    let active = true, url;
+    setAvatar("");
+    if (profile?.fotoDisponivel) api.get("/api/v1/perfil/foto", { responseType: "blob" }).then(({ data }) => {
+      url = URL.createObjectURL(data);
+      if (active) setAvatar(url);
+      else URL.revokeObjectURL(url);
+    }).catch(() => { if (active) setAvatar(""); });
+    return () => { active = false; if (url) URL.revokeObjectURL(url); };
+  }, [profile?.fotoDisponivel, session.usuarioId]);
 
   async function registrarDor(event) {
     event.preventDefault();
@@ -54,17 +71,29 @@ export default function DashboardPage() {
     <main className="min-h-screen bg-slate-50 text-ink dark:bg-darkTheme-bg dark:text-darkTheme-text">
       <header className="border-b border-slate-200 bg-sky text-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
         <div className="mx-auto flex min-h-36 max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-2">
-          <Brand inverse />
+          <Brand />
+          <div className="mr-12 flex flex-wrap items-center gap-3">
+          <Link to="/configuracao-perfil" aria-label="Configuração de perfil" className="inline-flex h-10 items-center gap-2 text-sm font-medium"><Settings size={17} />Perfil</Link>
           <button className="inline-flex h-10 items-center gap-2 rounded border border-slate-300 px-3 text-sm font-medium dark:border-darkTheme-border dark:text-darkTheme-text" onClick={logout}>
             <LogOut size={17} />
             Sair
           </button>
+          </div>
         </div>
       </header>
 
       <section className="mx-auto max-w-6xl px-5 py-8">
-        <h1 className="text-2xl font-semibold text-ink dark:text-darkTheme-text">Dashboard</h1>
-        <p className="mt-1 text-slate-600 dark:text-darkTheme-muted">Bem-vindo, {session?.nome}.</p>
+        <div className="flex items-center gap-4">
+          <Link to="/configuracao-perfil" aria-label="Editar foto de perfil" className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
+            {avatar ? <img src={avatar} alt="Foto de perfil" className="h-full w-full object-cover" /> : <UserRound size={28} className="text-slate-400" />}
+          </Link>
+          <div className="min-w-0"><h1 className="text-2xl font-semibold text-ink dark:text-darkTheme-text">Dashboard</h1>
+          <p className="mt-1 break-words text-slate-600 dark:text-darkTheme-muted">Bem-vindo, {session?.nome}.</p></div>
+        </div>
+        {profile && !profile.completo && <div className="mt-6 flex flex-wrap items-center gap-3 border-l-4 border-amber-500 bg-amber-50 p-4 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+          <AlertCircle size={20} className="shrink-0" /><p>{fisio ? "Seu perfil de atendimento está incompleto." : "Complete o endereço do seu perfil para poder agendar consultas."}</p>
+          <Link to="/configuracao-perfil" className="font-semibold underline">Completar perfil</Link>
+        </div>}
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <article className="rounded border border-slate-200 bg-white p-5 dark:border-darkTheme-border dark:bg-darkTheme-panel">

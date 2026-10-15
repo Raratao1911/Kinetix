@@ -24,11 +24,12 @@ public class ConsultaService {
     private final AvaliacaoRepository avaliacoes;
     private final NotificacaoService notificacaoService;
     private final ZoneId zoneId;
+    private final PerfilService perfis;
 
     public ConsultaService(FisioterapeutaRepository fisioterapeutas, PacienteRepository pacientes,
         ServicoRepository servicos, DisponibilidadeRepository disponibilidades,
         BloqueioAgendaRepository bloqueios, ConsultaRepository consultas,
-        AvaliacaoRepository avaliacoes, NotificacaoService notificacaoService, Environment environment) {
+        AvaliacaoRepository avaliacoes, NotificacaoService notificacaoService, Environment environment, PerfilService perfis) {
         this.fisioterapeutas = fisioterapeutas;
         this.pacientes = pacientes;
         this.servicos = servicos;
@@ -37,11 +38,13 @@ public class ConsultaService {
         this.consultas = consultas;
         this.avaliacoes = avaliacoes;
         this.notificacaoService = notificacaoService;
+        this.perfis = perfis;
         this.zoneId = ZoneId.of(environment.getProperty("kinetix.time-zone", "America/Sao_Paulo"));
     }
 
     @Transactional
     public ConsultaResumo agendar(Long pacienteId, ConsultaRequest request) {
+        perfis.exigirCompleto(pacienteId);
         // A linha do profissional permanece bloqueada até o commit. Todas as reservas
         // do mesmo profissional passam por ela antes da consulta de sobreposição.
         Fisioterapeuta fisio = fisioterapeutas.bloquearPorUsuarioId(request.fisioterapeutaId())

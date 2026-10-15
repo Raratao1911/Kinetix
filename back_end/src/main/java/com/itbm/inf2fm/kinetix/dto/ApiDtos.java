@@ -4,6 +4,7 @@ import com.itbm.inf2fm.kinetix.model.enums.PerfilUsuario;
 import com.itbm.inf2fm.kinetix.model.enums.StatusConsulta;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.br.CPF;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.List;
@@ -13,6 +14,17 @@ public final class ApiDtos {
     private ApiDtos() {}
 
     public record LoginRequest(@NotBlank @Email String email, @NotBlank String senha) {}
+    public record ConfiguracaoPerfilRequest(
+        @Pattern(regexp="[0-9]{5}-?[0-9]{3}", message="Informe um CEP com 8 dígitos.") String cep,
+        @Size(max=160) String logradouro, @Size(max=20) String numero,
+        @NotBlank @Size(max=100) String cidade, @Size(max=100) String bairro,
+        @NotBlank @Pattern(regexp="(?i)AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message="Informe um Estado válido.") String uf,
+        @Pattern(regexp="\\+[1-9][0-9]{7,14}", message="Informe um telefone adicional válido com DDI.") String telefoneAdicional,
+        @Pattern(regexp="[A-Z]{2}") String paisTelefoneAdicional, boolean removerFoto) {}
+    public record ConfiguracaoPerfilResumo(Long usuarioId, String nome, String email, PerfilUsuario perfil,
+        String telefone, String telefoneAdicional, String paisTelefoneAdicional, String cep,
+        String logradouro, String numero, String cidade, String bairro, String uf,
+        boolean fotoDisponivel, boolean completo) {}
     public record AuthResponse(Long usuarioId, String nome, PerfilUsuario perfil, String token, String tipoToken, OffsetDateTime expiraEm) {}
     public record PerfilPacienteRequest(@Size(max=120) String nome, @Size(max=30) String telefone,
         @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl, LocalDate dataNascimento,
@@ -23,13 +35,22 @@ public final class ApiDtos {
     public record ExercicioResumo(Long id, String nome, String descricao, String videoUrl) {}
     public record RegisterPatientRequest(
         @NotBlank @Size(max=120) String nome, @NotBlank @Email @Size(max=254) String email,
-        @NotBlank @Size(min=8,max=72) String senha, @Size(max=30) String telefone,
-        @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl,
-        LocalDate dataNascimento, @Size(max=100) String cidade, @Size(max=100) String bairro, @Size(max=2) String uf) {}
+        @NotBlank @Size(min=8,max=72) String senha,
+        @NotBlank @Pattern(regexp="\\+[1-9][0-9]{7,14}", message="Informe o telefone com DDI e número válidos.") String telefone,
+        @NotBlank(message="Informe o CPF.") @CPF(message="CPF inválido. Confira os dígitos informados.") String documentoIdentidade, @Size(max=500) String fotoUrl,
+        @NotNull LocalDate dataNascimento, @NotBlank @Size(max=100) String cidade,
+        @Size(max=100) String bairro,
+        @NotBlank @Pattern(regexp="(?i)AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO", message="Informe um Estado válido.") String uf) {
+        @AssertTrue(message="A data de nascimento deve estar entre 01/01/1900 e 31/12/2016.")
+        public boolean isDataNascimentoValida() {
+            return dataNascimento == null || (!dataNascimento.isBefore(LocalDate.of(1900, 1, 1))
+                && !dataNascimento.isAfter(LocalDate.of(2016, 12, 31)));
+        }
+    }
     public record RegisterPhysioRequest(
         @NotBlank @Size(max=120) String nome, @NotBlank @Email @Size(max=254) String email,
         @NotBlank @Size(min=8,max=72) String senha, @Size(max=30) String telefone,
-        @Size(max=30) String documentoIdentidade, @Size(max=500) String fotoUrl,
+        @NotBlank(message="Informe o CPF.") @CPF(message="CPF inválido. Confira os dígitos informados.") String documentoIdentidade, @Size(max=500) String fotoUrl,
         @NotBlank @Size(max=30) String crefitoNumero, @NotBlank @Size(min=2,max=2) String crefitoUf,
         @Size(max=160) String nomeClinica, @Size(max=1200) String apresentacao,
         @NotBlank @Size(max=100) String cidade, @NotBlank @Size(min=2,max=2) String uf,
