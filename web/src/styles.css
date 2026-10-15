@@ -25,3 +25,28 @@ input,
 select {
   font: inherit;
 }
+
+@layer components {
+  .kx-page { @apply min-h-screen bg-slate-50 text-ink dark:bg-darkTheme-bg dark:text-darkTheme-text; }
+  .kx-content { @apply mx-auto max-w-6xl px-5 py-8; }
+  .kx-nav { @apply inline-flex min-h-10 items-center gap-2 hover:underline; }
+  .kx-nav.active { @apply font-bold underline underline-offset-4; }
+  .kx-form { @apply grid min-w-0 gap-4 py-5 sm:grid-cols-2; }
+  .kx-form label { @apply block min-w-0 text-sm font-medium; }
+  .kx-input { @apply mt-1 block min-h-11 w-full min-w-0 rounded border border-slate-300 bg-white px-3 py-2 text-base font-normal text-ink outline-none focus:border-sky dark:border-darkTheme-border dark:bg-darkTheme-surface dark:text-darkTheme-text; }
+  .kx-primary { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded bg-sky px-4 py-2 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-50 dark:bg-mint dark:text-ink; }
+  .kx-secondary { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded border border-slate-300 bg-white px-4 py-2 text-sm font-medium disabled:opacity-50 dark:border-darkTheme-border dark:bg-darkTheme-surface; }
+  .kx-icon { @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded border border-slate-300 disabled:opacity-50 dark:border-darkTheme-border; }
+  .kx-link { @apply inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-sky underline-offset-4 hover:underline dark:text-mint; }
+  .kx-muted { @apply text-sm text-slate-600 dark:text-darkTheme-muted; }
+  .kx-error { @apply my-4 break-words border-l-4 border-red-500 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-300; }
+  .kx-success { @apply my-4 break-words text-sm text-green-700 dark:text-green-300; }
+  .kx-warning { @apply my-4 border-l-4 border-amber-500 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-950/30 dark:text-amber-200; }
+  .kx-tabs { @apply mt-5 flex flex-wrap gap-x-5 gap-y-2 border-b border-slate-200 dark:border-darkTheme-border; }
+  .kx-tabs button { @apply min-h-11 border-b-2 border-transparent px-1 py-2 text-sm font-medium; }
+  .kx-tabs button[aria-selected="true"] { @apply border-sky font-semibold text-sky dark:border-mint dark:text-mint; }
+  .kx-list { @apply divide-y divide-slate-200 dark:divide-darkTheme-border; }
+  .kx-row { @apply flex min-w-0 flex-wrap items-center justify-between gap-4 py-4; }
+  .kx-section { @apply mt-7 border-t border-slate-200 pt-6 dark:border-darkTheme-border; }
+  .kx-badge { @apply inline-flex items-center rounded border border-slate-200 bg-white px-2 py-1 text-xs font-medium dark:border-darkTheme-border dark:bg-darkTheme-surface; }
+}

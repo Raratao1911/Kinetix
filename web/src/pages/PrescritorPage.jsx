@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Save, Plus, Trash2 } from "lucide-react";
 import { api } from "../api/client";
 import Brand from "../components/Brand.jsx";
@@ -7,14 +7,17 @@ import Brand from "../components/Brand.jsx";
 const fieldClass = "w-full rounded border border-slate-300 bg-white p-2 outline-none focus:border-sky dark:border-darkTheme-border dark:bg-darkTheme-surface dark:text-darkTheme-text";
 
 export default function PrescritorPage() {
+  const [params] = useSearchParams();
   const [pacientes, setPacientes] = useState([]);
   const [exerciciosBase, setExerciciosBase] = useState([]);
-  const [selectedPaciente, setSelectedPaciente] = useState("");
+  const [selectedPaciente, setSelectedPaciente] = useState(params.get("paciente") || "");
   const [titulo, setTitulo] = useState("Plano de reabilitação");
   const [orientacoes, setOrientacoes] = useState("");
   const [plano, setPlano] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [newExercise, setNewExercise] = useState(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -31,6 +34,17 @@ export default function PrescritorPage() {
   const addExercicio = () => {
     setPlano([...plano, { exercicioId: "", series: 3, repeticoes: 10, duracaoSegundos: "" }]);
   };
+
+  async function createExercise(event) {
+    event.preventDefault();
+    setLoading(true); setError(""); setMessage("");
+    try {
+      const { data } = await api.post("/api/v1/fisioterapeuta/exercicios", { ...newExercise, nome: newExercise.nome.trim(), videoUrl: newExercise.videoUrl || null });
+      setExerciciosBase(current => [...current, data].sort((a, b) => a.nome.localeCompare(b.nome)));
+      setNewExercise(null); setMessage("Exercício cadastrado.");
+    } catch (err) { setError(err.response?.data?.mensagem || "Não foi possível cadastrar o exercício."); }
+    finally { setLoading(false); }
+  }
 
   const removeExercicio = (index) => {
     setPlano(plano.filter((_, i) => i !== index));
@@ -81,7 +95,7 @@ export default function PrescritorPage() {
       <header className="border-b border-slate-200 bg-sky text-white dark:border-darkTheme-border dark:bg-darkTheme-panel">
         <div className="mx-auto flex min-h-36 max-w-6xl flex-wrap items-center gap-4 px-5 py-2">
           <Brand />
-          <Link to="/dashboard" className="ml-auto text-sm font-medium">Minha conta</Link>
+          <nav className="ml-auto mr-12 flex flex-wrap gap-4 text-sm font-medium"><Link to="/agenda">Consultas</Link><Link to="/dashboard">Minha conta</Link></nav>
         </div>
       </header>
 
@@ -102,6 +116,7 @@ export default function PrescritorPage() {
       </header>
 
       <section className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 dark:border-darkTheme-border dark:bg-darkTheme-panel">
+        {message && <p role="status" className="kx-success">{message}</p>}
         {error && <p className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2">
@@ -116,8 +131,9 @@ export default function PrescritorPage() {
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">Paciente</label>
+          <label htmlFor="prescritor-paciente" className="block text-sm font-medium mb-1">Paciente</label>
           <select 
+            id="prescritor-paciente"
             className={fieldClass}
             value={selectedPaciente}
             onChange={(e) => setSelectedPaciente(e.target.value)}
@@ -167,7 +183,17 @@ export default function PrescritorPage() {
           <Plus size={20} />
           Adicionar exercício
         </button>
+        <button type="button" className="kx-link mt-4" onClick={() => setNewExercise({ nome: "", descricao: "", videoUrl: "" })}><Plus size={17} />Novo exercício no catálogo</button>
       </section>
+      {newExercise && <section className="kx-section">
+        <h2 className="text-lg font-semibold">Cadastrar exercício</h2>
+        <form onSubmit={createExercise} className="kx-form">
+          <label>Nome do exercício<input autoFocus required maxLength={120} className="kx-input" value={newExercise.nome} onChange={e => setNewExercise({ ...newExercise, nome: e.target.value })} /></label>
+          <label>Vídeo (opcional)<input type="url" maxLength={500} className="kx-input" value={newExercise.videoUrl} onChange={e => setNewExercise({ ...newExercise, videoUrl: e.target.value })} /></label>
+          <label className="sm:col-span-2">Descrição do exercício<textarea className="kx-input" maxLength={1000} rows={3} value={newExercise.descricao} onChange={e => setNewExercise({ ...newExercise, descricao: e.target.value })} /></label>
+          <div className="flex gap-3 sm:col-span-2"><button disabled={loading || !newExercise.nome.trim()} className="kx-primary"><Save size={17} />Cadastrar exercício</button><button type="button" className="kx-secondary" onClick={() => setNewExercise(null)}>Cancelar</button></div>
+        </form>
+      </section>}
       </div>
     </div>
   );

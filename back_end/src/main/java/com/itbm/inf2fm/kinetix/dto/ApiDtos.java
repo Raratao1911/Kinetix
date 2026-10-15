@@ -62,7 +62,8 @@ public final class ApiDtos {
     public record ProfissionalResumo(Long id, String nome, String fotoUrl, String nomeClinica, String apresentacao,
         String bairro, String cidade, String uf, String logradouro, String numero, String complemento,
         BigDecimal latitude, BigDecimal longitude, String crefitoUf, Set<String> especialidades,
-        Double avaliacaoMedia, long totalAvaliacoes, Double distanciaKm) {}
+        Double avaliacaoMedia, long totalAvaliacoes, Double distanciaKm, boolean crefitoVerificado) {}
+    public record EspecialidadesPerfilRequest(@NotNull Set<@NotNull Long> especialidadesIds) {}
     public record AvaliacaoPublica(Long id, int nota, String comentario, java.time.OffsetDateTime criadoEm) {}
     public record ProfissionalDetalhe(ProfissionalResumo profissional, List<ServicoResumo> servicos,
         List<AvaliacaoPublica> avaliacoes) {}

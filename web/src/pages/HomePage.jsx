@@ -17,21 +17,20 @@ import {
 } from "lucide-react";
 
 const quickLinks = [
-  { label: "Buscar fisioterapeutas", icon: Search },
-  { label: "Agendar consulta", icon: CalendarCheck },
-  { label: "Área do paciente", icon: HeartPulse },
-  { label: "Área profissional", icon: Stethoscope },
-  { label: "Planos de reabilitação", icon: ClipboardList },
-  { label: "Clínicas próximas", icon: MapPin },
-  { label: "Histórico de evolução", icon: Activity },
-  { label: "Segurança LGPD", icon: ShieldCheck }
+  { label: "Buscar fisioterapeutas", icon: Search, to: "/profissionais" },
+  { label: "Agendar consulta", icon: CalendarCheck, to: "/profissionais" },
+  { label: "Área do paciente", icon: HeartPulse, to: "/dashboard" },
+  { label: "Área profissional", icon: Stethoscope, to: "/dashboard" },
+  { label: "Planos de reabilitação", icon: ClipboardList, to: "/dashboard" },
+  { label: "Clínicas próximas", icon: MapPin, to: "/profissionais" },
+  { label: "Histórico de sessões", icon: Activity, to: "/agenda" }
 ];
 
 const heroActions = [
   { label: "Entrar como paciente", to: "/login" },
   { label: "Entrar como fisioterapeuta", to: "/login" },
   { label: "Criar nova conta", to: "/cadastro" },
-  { label: "Encontrar atendimento", to: "/login" }
+  { label: "Encontrar atendimento", to: "/profissionais" }
 ];
 
 export default function HomePage() {
@@ -70,14 +69,15 @@ export default function HomePage() {
             <Link className="hover:text-mint" to="/cadastro">Cadastrar</Link>
           </nav>
 
-          <label className="flex h-10 w-full max-w-[240px] items-center rounded-full bg-white px-4 text-slate-500 shadow-sm dark:bg-darkTheme-surface dark:text-darkTheme-muted">
+          <form action="/profissionais" className="flex h-10 w-full max-w-[240px] items-center rounded bg-white px-4 text-slate-500 shadow-sm dark:bg-darkTheme-surface dark:text-darkTheme-muted">
             <input
               className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-slate-500 dark:text-darkTheme-text"
-              placeholder="Pesquisar..."
-              aria-label="Pesquisar"
+              name="cidade"
+              placeholder="Buscar por cidade..."
+              aria-label="Buscar por cidade"
             />
-            <Search size={18} className="text-sky dark:text-darkTheme-action" />
-          </label>
+            <button type="submit" title="Buscar profissionais" aria-label="Buscar profissionais" className="flex h-10 w-8 shrink-0 items-center justify-center"><Search size={18} className="text-sky dark:text-darkTheme-action" /></button>
+          </form>
         </div>
       </header>
 
@@ -128,7 +128,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="flex items-center justify-center gap-8">
             <span className="hidden h-14 w-1 bg-mint sm:block" />
-            <h2 className="text-center text-3xl font-semibold text-sky dark:text-darkTheme-text">O que esta em alta no Kinetix?</h2>
+            <h2 className="text-center text-3xl font-semibold text-sky dark:text-darkTheme-text">O que está em alta no Kinetix?</h2>
             <span className="hidden h-14 w-1 bg-mint sm:block" />
           </div>
 
@@ -149,7 +149,7 @@ export default function HomePage() {
               <p className="mt-7 leading-7 text-slate-600 dark:text-darkTheme-muted">
                 Marque consultas, centralize dados essenciais e facilite o contato entre paciente e profissional.
               </p>
-              <Link className="mt-8 inline-flex h-11 w-fit items-center rounded bg-sky px-6 font-semibold text-white transition hover:bg-mintHover" to="/cadastro">
+              <Link className="mt-8 inline-flex h-11 w-fit items-center rounded bg-sky px-6 font-semibold text-white transition hover:bg-mintHover" to="/profissionais">
                 Saiba mais
               </Link>
             </div>
@@ -161,8 +161,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-5">
           <h2 className="text-3xl font-semibold text-sky dark:text-darkTheme-text">Acesso rápido</h2>
           <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-            {quickLinks.map(({ label, icon: Icon }) => (
-              <Link key={label} className="group flex min-h-32 flex-col items-center justify-center gap-4 text-center text-sm font-bold text-ink transition hover:text-mint dark:text-darkTheme-text" to={label.includes("Buscar") ? "/cadastro" : "/login"}>
+            {quickLinks.map(({ label, icon: Icon, to }) => (
+              <Link key={label} className="group flex min-h-32 flex-col items-center justify-center gap-4 text-center text-sm font-bold text-ink transition hover:text-mint dark:text-darkTheme-text" to={to}>
                 <Icon size={56} strokeWidth={1.6} className="text-slate-700 transition group-hover:text-mint dark:text-darkTheme-muted" />
                 <span>{label}</span>
               </Link>

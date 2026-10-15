@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface FisioterapeutaRepository extends JpaRepository<Fisioterapeuta, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = "usuario")
     @Query("select f from Fisioterapeuta f where f.usuario.id = :id")
     Optional<Fisioterapeuta> bloquearPorUsuarioId(@Param("id") Long id);
 
@@ -32,8 +33,9 @@ public interface FisioterapeutaRepository extends JpaRepository<Fisioterapeuta, 
         @Param("minLon") BigDecimal minLon, @Param("maxLon") BigDecimal maxLon, Pageable pageable);
 
     @EntityGraph(attributePaths = {"usuario", "especialidades"})
-    @Query("select f from Fisioterapeuta f where f.usuario.id = :id and f.ativo = true and f.crefitoVerificado = true")
+    @Query("select f from Fisioterapeuta f where f.usuario.id = :id and f.ativo = true and f.crefitoVerificado = true and f.usuario.ativo = true")
     Optional<Fisioterapeuta> buscarPerfilPublico(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = {"usuario", "especialidades"})
     Optional<Fisioterapeuta> findByUsuario_Id(Long usuarioId);
 }

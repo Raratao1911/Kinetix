@@ -36,7 +36,10 @@ public class ProfissionalService {
         Double latitude, Double longitude, Double raioKm) {
         if ((latitude == null) != (longitude == null))
             throw ErroNegocio.invalido("Informe latitude e longitude juntas.");
-        if (raioKm != null && (raioKm <= 0 || raioKm > 100))
+        if (latitude != null && (!Double.isFinite(latitude) || !Double.isFinite(longitude)
+            || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180))
+            throw ErroNegocio.invalido("Informe coordenadas validas.");
+        if (raioKm != null && (!Double.isFinite(raioKm) || raioKm <= 0 || raioKm > 100))
             throw ErroNegocio.invalido("O raio de busca deve estar entre 0 e 100 km.");
         BigDecimal minLat = null, maxLat = null, minLon = null, maxLon = null;
         if (latitude != null) {
@@ -52,6 +55,7 @@ public class ProfissionalService {
         List<Fisioterapeuta> encontrados = fisioterapeutas.buscarPublicos(
             vazio(cidade), vazio(bairro), vazio(uf), especialidadeId, minLat, maxLat, minLon, maxLon, PageRequest.of(0, 100));
         return encontrados.stream().map(f -> resumir(f, latitude, longitude))
+            .filter(p -> latitude == null || p.distanciaKm() <= (raioKm == null ? 15 : raioKm))
             .sorted(latitude == null ? Comparator.comparing(ProfissionalResumo::nome, String.CASE_INSENSITIVE_ORDER)
                 : Comparator.comparing(ProfissionalResumo::distanciaKm, Comparator.nullsLast(Double::compareTo)))
             .toList();
@@ -115,13 +119,16 @@ public class ProfissionalService {
 
     @Transactional
     public void adicionarDisponibilidade(Long usuarioId, DisponibilidadeRequest request) {
-        Fisioterapeuta fisio = meuPerfil(usuarioId);
+        Fisioterapeuta fisio = fisioterapeutas.bloquearPorUsuarioId(usuarioId)
+            .orElseThrow(() -> ErroNegocio.naoEncontrado("Perfil de fisioterapeuta inexistente."));
         if (!request.horaInicio().isBefore(request.horaFim()))
             throw ErroNegocio.invalido("A hora final deve ser posterior à hora inicial.");
         if (request.vigenciaFim() != null && request.vigenciaInicio().isAfter(request.vigenciaFim()))
             throw ErroNegocio.invalido("A vigência final não pode anteceder a inicial.");
-        boolean conflito = disponibilidades.existsByFisioterapeuta_Usuario_IdAndDiaSemanaAndHoraInicioLessThanAndHoraFimGreaterThanAndAtivaTrue(
-            usuarioId, request.diaSemana(), request.horaFim(), request.horaInicio());
+        boolean conflito = disponibilidades.findByFisioterapeuta_Usuario_IdAndDiaSemanaAndAtivaTrue(usuarioId, request.diaSemana())
+            .stream().anyMatch(d -> request.horaInicio().isBefore(d.horaFim) && request.horaFim().isAfter(d.horaInicio)
+                && (d.vigenciaFim == null || !request.vigenciaInicio().isAfter(d.vigenciaFim))
+                && (request.vigenciaFim() == null || !d.vigenciaInicio.isAfter(request.vigenciaFim())));
         if (conflito) throw ErroNegocio.conflito("Este intervalo sobrepõe uma disponibilidade já cadastrada.");
         DisponibilidadeSemanal disponibilidade = new DisponibilidadeSemanal();
         disponibilidade.fisioterapeuta = fisio;
@@ -173,6 +180,24 @@ public class ProfissionalService {
         f.crefitoVerificado = verificado;
     }
 
+    @Transactional
+    public ProfissionalResumo atualizarEspecialidades(Long usuarioId, EspecialidadesPerfilRequest request) {
+        Fisioterapeuta f = meuPerfil(usuarioId);
+        var lista = especialidades.findAllById(request.especialidadesIds());
+        if (lista.size() != request.especialidadesIds().size() || lista.stream().anyMatch(e -> !e.ativa))
+            throw ErroNegocio.invalido("Selecione especialidades ativas existentes.");
+        f.especialidades.clear();
+        f.especialidades.addAll(lista);
+        return resumir(f, null, null);
+    }
+
+    @Transactional
+    public void removerDisponibilidade(Long usuarioId, Long id) {
+        DisponibilidadeSemanal d = disponibilidades.findByIdAndFisioterapeuta_Usuario_IdAndAtivaTrue(id, usuarioId)
+            .orElseThrow(() -> ErroNegocio.naoEncontrado("Disponibilidade n\u00e3o encontrada."));
+        d.ativa = false;
+    }
+
     private Fisioterapeuta meuPerfil(Long usuarioId) {
         return fisioterapeutas.findByUsuario_Id(usuarioId)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Perfil de fisioterapeuta não encontrado."));
@@ -194,7 +219,7 @@ public class ProfissionalService {
         return new ProfissionalResumo(f.usuario.id, f.usuario.nome, f.usuario.fotoUrl, f.nomeClinica,
             f.apresentacao, f.bairro, f.cidade, f.uf, f.logradouro, f.numero, f.complemento,
             f.latitude, f.longitude, f.crefitoUf, f.especialidades.stream().map(e -> e.nome).collect(java.util.stream.Collectors.toSet()),
-            media == null ? 0 : media, avaliacoes.totalPublicas(f.usuario.id), distancia);
+            media == null ? 0 : media, avaliacoes.totalPublicas(f.usuario.id), distancia, f.crefitoVerificado);
     }
 
     private ServicoResumo resumirServico(Servico s) {

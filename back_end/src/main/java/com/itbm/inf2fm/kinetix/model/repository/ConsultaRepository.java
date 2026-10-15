@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
+    @Override
+    @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})
+    Optional<Consulta> findById(Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})
     @Query("select c from Consulta c where c.id = :id")
     Optional<Consulta> bloquearPorId(@Param("id") Long id);
 

@@ -10,6 +10,10 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import PrescritorPage from "./pages/PrescritorPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import SearchPage from "./pages/SearchPage.jsx";
+import ProfessionalPage from "./pages/ProfessionalPage.jsx";
+import AgendaPage from "./pages/AgendaPage.jsx";
+import PatientPage from "./pages/PatientPage.jsx";
 
 function PrivateRoute({ children, perfil }) {
   const { session } = useAuth();
@@ -58,6 +62,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
+          <Route path="/profissionais" element={<SearchPage />} />
+          <Route path="/profissionais/:id" element={<ProfessionalPage />} />
+          <Route path="/agenda" element={<PrivateRoute><AgendaPage /></PrivateRoute>} />
+          <Route path="/pacientes/:id" element={<PrivateRoute perfil="FISIO"><PatientPage /></PrivateRoute>} />
           <Route path="/configuracao-perfil" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           <Route
             path="/dashboard"

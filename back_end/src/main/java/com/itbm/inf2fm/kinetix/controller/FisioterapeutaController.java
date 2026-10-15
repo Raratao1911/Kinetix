@@ -41,6 +41,18 @@ public class FisioterapeutaController {
         return profissionais.atualizarPerfil(id(jwt), request);
     }
 
+    @PutMapping("/especialidades")
+    public ProfissionalResumo especialidades(@AuthenticationPrincipal Jwt jwt,
+        @Valid @RequestBody EspecialidadesPerfilRequest request) {
+        return profissionais.atualizarEspecialidades(id(jwt), request);
+    }
+
+    @DeleteMapping("/disponibilidades/{disponibilidadeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removerDisponibilidade(@AuthenticationPrincipal Jwt jwt, @PathVariable Long disponibilidadeId) {
+        profissionais.removerDisponibilidade(id(jwt), disponibilidadeId);
+    }
+
     @PostMapping("/servicos")
     @ResponseStatus(HttpStatus.CREATED)
     public ServicoResumo criarServico(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ServicoRequest request) {
@@ -85,6 +97,12 @@ public class FisioterapeutaController {
     @GetMapping("/exercicios")
     public List<ExercicioResumo> exercicios() {
         return clinical.exerciciosAtivos();
+    }
+
+    @PostMapping("/exercicios")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ExercicioResumo criarExercicio(@Valid @RequestBody ExercicioRequest request) {
+        return clinical.criarExercicio(request);
     }
 
     @PostMapping("/bloqueios")

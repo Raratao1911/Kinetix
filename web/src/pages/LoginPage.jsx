@@ -1,13 +1,14 @@
 import React from 'react';
 import { LogIn } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthShell from "../components/AuthShell.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
 
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [form, setForm] = useState({ email: "", senha: "" });
   const [error, setError] = useState("");
@@ -20,7 +21,8 @@ export default function LoginPage() {
 
     try {
       await login(form);
-      navigate("/dashboard");
+      const from = location.state?.from;
+      navigate(typeof from === "string" && /^\/profissionais\/\d+(\?|$)/.test(from) ? from : "/dashboard", { replace: true });
     } catch (err) {
       setError(err.response?.data?.mensagem ?? err.response?.data?.message ?? "Não foi possível autenticar.");
     } finally {

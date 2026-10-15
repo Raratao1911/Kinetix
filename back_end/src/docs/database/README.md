@@ -4,9 +4,14 @@ O esquema oficial da aplicação está em `src/main/resources/db/migration/V1__c
 
 ## Inicialização recomendada da aplicação
 
-1. Execute `kinetix.sql` conectado ao SQL Server (ele cria o banco vazio `Kinetix`).
+1. Se o banco ainda nao existir, execute no SSMS: `IF DB_ID(N'Kinetix') IS NULL EXEC(N'CREATE DATABASE [Kinetix]');`.
 2. Configure `KINETIX_DB_URL`, `KINETIX_DB_USERNAME` e `KINETIX_DB_PASSWORD`.
-3. Inicie a API. O Flyway aplica a migration V1 e o Hibernate valida o esquema.
+3. Inicie a API. O Flyway aplica as migrations pendentes e o Hibernate valida o esquema.
+
+V1 cria a estrutura inicial. V2 acrescenta endereco do paciente, telefone adicional
+e a tabela de fotos de perfil. Ambas atuam no mesmo banco Kinetix; nao sao bancos separados.
+O historico fica em dbo.flyway_schema_history. Nao execute as migrations manualmente
+nem o script completo sobre o banco que ja esta em uso.
 
 ## Execução manual completa
 

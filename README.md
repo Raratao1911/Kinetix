@@ -15,9 +15,35 @@ O KINETIX conecta pacientes, fisioterapeutas e clinicas por meio de uma aplicaca
 - Mobile: React Native, Expo, Expo Router e Axios.
 - Infraestrutura: Docker, Docker Compose, GitHub Actions, Render/Railway e Vercel/Netlify.
 
-## Sprint Atual
+## Entrega Web
 
-Sprint 1 - Arquitetura e Planejamento.
+Fluxo principal: buscar profissional sem login, escolher servico/data/horario,
+autenticar como paciente e confirmar a reserva. O endereco do paciente deve estar completo.
+
+Telas:
+- `/profissionais`: busca publica por cidade, bairro, Estado, especialidade e proximidade.
+- `/profissionais/:id`: perfil publico, servicos, valores e horarios.
+- `/agenda`: consultas e historico; o fisioterapeuta tambem publica disponibilidades.
+- `/pacientes/:id`: acompanhamento clinico restrito ao profissional vinculado.
+- `/configuracao-perfil`: endereco, foto e telefone adicional; profissionais gerenciam apresentacao, especialidades e servicos.
+- `/prescritor?paciente=:id`: prescricao e cadastro de exercicios.
+
+### Demonstracao em Tres Processos
+
+1. Profissional: entrar, completar endereco e apresentacao, selecionar especialidades,
+   cadastrar servico com duracao/preco e publicar uma disponibilidade na agenda.
+   O CREFITO precisa ser liberado administrativamente para aparecer na busca.
+   Cadastrar-se nao libera automaticamente o registro profissional.
+2. Paciente: buscar sem login, abrir o perfil, selecionar servico/data/horario,
+   entrar e confirmar. A consulta aparece na agenda como solicitada.
+   Cancelamentos do paciente exigem motivo e antecedencia minima de 24 horas.
+3. Profissional: confirmar a consulta na agenda, abrir o paciente, registrar prontuario,
+   consultar diario de dor e prescrever exercicios. O paciente visualiza a rotina no painel.
+
+Os horarios de atendimento sao apresentados no fuso America/Sao_Paulo.
+Remover uma disponibilidade ou desativar um servico nao apaga consultas existentes.
+
+## Estrutura
 
 Entregaveis:
 
@@ -126,11 +152,11 @@ Esse teste cria duas contas sinteticas que permanecem no banco.
 ## Pendencias
 
 - Aplicativo React Native/Expo: a pasta mobile ainda nao existe no repositorio.
-- Telas de busca GPS/especialidade, agendamento e gestao de servicos/disponibilidades.
-- Telas administrativas: verificacao CREFITO e catalogo de exercicios.
+- Interface administrativa para verificacao CREFITO e moderacao de avaliacoes (as rotas administrativas ja existem).
+- Planos/assinaturas e dashboard financeiro completo, fora do fluxo minimo de atendimento desta entrega.
 - Registro persistente de consentimento e documentos de termos/privacidade.
 - Testes completos de migrations, concorrencia e fluxos clinicos com SQL Server.
 - Atualizar as dependencias de ferramentas do Tailwind: o audit ainda aponta avisos que exigem migracao de versao principal.
 
-O painel web consulta a agenda. Pacientes podem registrar dor e visualizar rotinas prescritas.
-Fisioterapeutas acessam o prescritor para pacientes com vinculo de atendimento.
+O catalogo de exercicios pode ser alimentado por fisioterapeutas autenticados no prescritor.
+Os testes de navegador incluem os fluxos profissionais, busca publica, reserva, cancelamento e prontuario.

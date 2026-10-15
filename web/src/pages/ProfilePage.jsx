@@ -4,6 +4,7 @@ import { ArrowLeft, Save, Upload, Trash2, UserRound, AlertCircle, RefreshCw } fr
 import { isSupportedCountry, parsePhoneNumberFromString } from "libphonenumber-js";
 import { api } from "../api/client.js";
 import Brand from "../components/Brand.jsx";
+import ProfessionalSettings from "../components/ProfessionalSettings.jsx";
 import PhoneFields, { phoneToInternational } from "../components/PhoneFields.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
 
@@ -182,6 +183,7 @@ export default function ProfilePage() {
               <Link to="/dashboard" className="text-sm font-medium text-sky dark:text-mint">{profile.completo ? "Voltar ao painel" : "Pular por enquanto"}</Link>
             </div>
           </form>
+          {session.perfil === "FISIO" && <ProfessionalSettings />}
         </>}
       </section>
     </main>

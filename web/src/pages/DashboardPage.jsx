@@ -3,6 +3,7 @@ import { CalendarDays, LogOut, Activity, Users, Settings, UserRound, AlertCircle
 import { Link } from "react-router-dom";
 import { api } from "../api/client.js";
 import Brand from "../components/Brand.jsx";
+import { money, statusLabel } from "../components/PageLayout.jsx";
 import { useAuth } from "../state/AuthContext.jsx";
 
 export default function DashboardPage() {
@@ -73,6 +74,8 @@ export default function DashboardPage() {
         <div className="mx-auto flex min-h-36 max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-2">
           <Brand />
           <div className="mr-12 flex flex-wrap items-center gap-3">
+          <Link to="/profissionais" className="inline-flex h-10 items-center text-sm font-medium">Buscar profissionais</Link>
+          <Link to="/agenda" className="inline-flex h-10 items-center gap-2 text-sm font-medium"><CalendarDays size={17} />Consultas</Link>
           <Link to="/configuracao-perfil" aria-label="Configuração de perfil" className="inline-flex h-10 items-center gap-2 text-sm font-medium"><Settings size={17} />Perfil</Link>
           <button className="inline-flex h-10 items-center gap-2 rounded border border-slate-300 px-3 text-sm font-medium dark:border-darkTheme-border dark:text-darkTheme-text" onClick={logout}>
             <LogOut size={17} />
@@ -113,14 +116,20 @@ export default function DashboardPage() {
           </article>
         </div>
         {error && <p role="alert" className="mt-4 text-red-600">{error}</p>}
-        {fisio && <Link to="/prescritor" className="mt-6 inline-flex rounded bg-mint px-4 py-2 font-semibold text-ink">Prescritor digital</Link>}
+        {fisio ? <div className="mt-6 flex flex-wrap gap-4"><Link to="/prescritor" className="kx-primary">Prescritor digital</Link><Link to="/agenda?aba=disponibilidade" className="kx-secondary">Configurar horários</Link></div> : <Link to="/profissionais" className="kx-primary mt-6">Agendar consulta</Link>}
+        {fisio && <section className="kx-section"><h2 className="text-lg font-semibold">Meus pacientes</h2>
+          <ul className="kx-list">{pacientes.map(p => <li className="kx-row" key={p.usuarioId}><span className="break-words font-medium">{p.nome}</span><Link className="kx-link" to={`/pacientes/${p.usuarioId}`}>Abrir acompanhamento</Link></li>)}</ul>
+          {!loading && !pacientes.length && <p className="kx-muted mt-3">Nenhum paciente vinculado.</p>}
+        </section>}
         <div className="mt-8 border-t border-slate-200 pt-6 dark:border-darkTheme-border">
           <h2 className="text-lg font-semibold">Minhas consultas</h2>
+          {fisio && !loading && <p className="kx-muted mt-2">Valor total dos atendimentos realizados: <strong>{money(consultas.filter(c => c.status === "REALIZADA").reduce((total, c) => total + Number(c.preco), 0))}</strong></p>}
+          <Link to="/agenda" className="kx-link">Ver agenda e histórico</Link>
           {!loading && !error && consultas.length === 0 && <p className="mt-2 text-slate-500 dark:text-darkTheme-muted">Nenhuma consulta cadastrada.</p>}
           <ul className="mt-3 divide-y divide-slate-200 dark:divide-darkTheme-border">
             {consultas.map(c => <li key={c.id} className="flex flex-wrap justify-between gap-2 py-3">
               <div><p className="font-medium">{fisio ? c.pacienteNome : c.fisioterapeutaNome}</p><p className="text-sm">{c.servicoNome} - {new Date(c.inicio).toLocaleString("pt-BR")}</p></div>
-              <span className="text-sm">{c.status.replaceAll("_", " ")}</span>
+              <span className="text-sm">{statusLabel(c.status)}</span>
             </li>)}
           </ul>
         </div>

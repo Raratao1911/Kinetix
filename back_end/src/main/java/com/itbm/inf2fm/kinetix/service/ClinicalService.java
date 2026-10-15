@@ -137,6 +137,14 @@ public class ClinicalService {
     }
 
     @Transactional
+    public ExercicioResumo criarExercicio(ExercicioRequest request) {
+        Exercicio e = new Exercicio();
+        e.nome = request.nome().trim(); e.descricao = request.descricao(); e.videoUrl = request.videoUrl();
+        exercicios.save(e);
+        return new ExercicioResumo(e.id, e.nome, e.descricao, e.videoUrl);
+    }
+
+    @Transactional
     public List<PrescricaoResumo> prescricoesPaciente(Long pacienteId) {
         List<PlanoExercicio> lista = planos.findByPaciente_Usuario_IdAndAtivoTrueOrderByInicioDesc(pacienteId);
         lista.forEach(p -> auditar(p.paciente.usuario.id, p.paciente, "PRESCRICAO", p.id, "LEITURA"));
