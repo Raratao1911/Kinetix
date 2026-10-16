@@ -1,6 +1,6 @@
 package com.itbm.inf2fm.kinetix;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.itbm.inf2fm.kinetix.config.SegurancaConfig;
 import com.itbm.inf2fm.kinetix.controller.ApiExceptionHandler;
 import com.itbm.inf2fm.kinetix.controller.AuthController;
@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "debug=false", "logging.level.root=WARN", "logging.level.org.springframework.web=WARN"
 })
 @AutoConfigureMockMvc
+// Mockito matchers use null placeholders; Jackson results are checked by the HTTP assertions.
+@SuppressWarnings("null")
 class AuthFlowTest {
     @SpringBootConfiguration
     @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
@@ -67,7 +69,7 @@ class AuthFlowTest {
     }
 
     @Autowired MockMvc mvc;
-    @Autowired ObjectMapper json;
+    @Autowired JsonMapper json;
     @Autowired PasswordEncoder encoder;
     @MockitoBean UsuarioRepository usuarios;
     @MockitoBean PacienteRepository pacientes;
@@ -97,7 +99,7 @@ class AuthFlowTest {
 
     @Test
     void rotasAdministrativasExigemPerfilAdmin() throws Exception {
-        String tokenPaciente = json.readTree(paciente()).get("token").asText();
+        String tokenPaciente = json.readTree(paciente()).get("token").asString();
         for (String rota : new String[] { "fisioterapeutas", "avaliacoes", "assinaturas", "consultas" }) {
             mvc.perform(get("/api/v1/admin/" + rota)).andExpect(status().isUnauthorized());
             mvc.perform(get("/api/v1/admin/" + rota).header("Authorization", "Bearer " + tokenPaciente))
@@ -135,7 +137,7 @@ class AuthFlowTest {
                 """))
             .andExpect(status().isOk()).andExpect(jsonPath("$.tipoToken").value("Bearer"))
             .andReturn().getResponse().getContentAsString();
-        String token = json.readTree(response).get("token").asText();
+        String token = json.readTree(response).get("token").asString();
         mvc.perform(get("/api/test/me").header("Authorization", "Bearer " + token))
             .andExpect(status().isOk()).andExpect(jsonPath("$.usuarioId").value("1"));
         mvc.perform(get("/api/test/fisio").header("Authorization", "Bearer " + token))
@@ -156,7 +158,7 @@ class AuthFlowTest {
                 {"email":"fisio@example.com","senha":"Senha123!"}
                 """))
             .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        mvc.perform(get("/api/test/fisio").header("Authorization", "Bearer " + json.readTree(response).get("token").asText()))
+        mvc.perform(get("/api/test/fisio").header("Authorization", "Bearer " + json.readTree(response).get("token").asString()))
             .andExpect(status().isOk());
     }
 

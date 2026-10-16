@@ -1,5 +1,7 @@
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
 import com.itbm.inf2fm.kinetix.model.entity.Paciente;
 import com.itbm.inf2fm.kinetix.model.repository.PacienteRepository;
@@ -14,7 +16,7 @@ public class PacienteService {
 
     @Transactional(readOnly=true)
     public PacientePerfilResumo meuPerfil(Long usuarioId) {
-        Paciente p=pacientes.findById(usuarioId)
+        Paciente p=pacientes.findById(requireNonNull(usuarioId))
             .orElseThrow(()->ErroNegocio.naoEncontrado("Perfil de paciente não encontrado."));
         return resumo(p);
     }
@@ -26,7 +28,7 @@ public class PacienteService {
 
     @Transactional
     public PacientePerfilResumo atualizarPerfil(Long usuarioId, PerfilPacienteRequest request) {
-        Paciente p=pacientes.findById(usuarioId)
+        Paciente p=pacientes.findById(requireNonNull(usuarioId))
             .orElseThrow(()->ErroNegocio.naoEncontrado("Perfil de paciente não encontrado."));
         if (request.nome()!=null) p.usuario.nome=request.nome().trim();
         if (request.telefone()!=null) p.usuario.telefone=request.telefone();

@@ -34,7 +34,7 @@ public class PerfilController {
         var foto = perfis.foto(Long.valueOf(jwt.getSubject()));
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
             .header("X-Content-Type-Options", "nosniff")
-            .contentType(MediaType.parseMediaType(foto.tipo)).body(foto.conteudo);
+            .contentType(MediaType.parseMediaType(java.util.Objects.requireNonNull(foto.tipo))).body(foto.conteudo);
     }
 
     @PostMapping("/consentimento")

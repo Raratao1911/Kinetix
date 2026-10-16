@@ -10,7 +10,7 @@ O KINETIX conecta pacientes, fisioterapeutas e clinicas por meio de uma aplicaca
 
 ## Stack
 
-- Backend: Java 21, Spring Boot 3, Spring Security, JWT, Spring Data JPA, Validation e SQL Server.
+- Backend: Java 21, Spring Boot 4.0.8, Spring Security, JWT, Spring Data JPA, Validation e SQL Server.
 - Web: React, Vite, TailwindCSS, Axios e React Router.
 - Mobile: previsto para uma etapa futura, ainda sem implementacao neste repositorio.
 - Execucao: ambiente local ou Docker Compose; sem deploy publico configurado.

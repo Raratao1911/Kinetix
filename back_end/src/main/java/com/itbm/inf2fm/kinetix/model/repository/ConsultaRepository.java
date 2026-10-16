@@ -13,7 +13,8 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
     List<Consulta> findAllByOrderByInicioDesc();
     @Override
     @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})
-    Optional<Consulta> findById(Long id);
+    @org.jspecify.annotations.NonNull
+    Optional<Consulta> findById(@org.jspecify.annotations.NonNull Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"paciente.usuario", "fisioterapeuta.usuario", "servico"})

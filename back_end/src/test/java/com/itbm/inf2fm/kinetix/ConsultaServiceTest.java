@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.mockito.Mockito.*;
 
+// Mockito matchers intentionally return null placeholders when defining mock behavior.
+@SuppressWarnings("null")
 class ConsultaServiceTest {
     @Test
     void avaliacaoExigeProprietarioSessaoRealizadaENaoPodeDuplicar() {

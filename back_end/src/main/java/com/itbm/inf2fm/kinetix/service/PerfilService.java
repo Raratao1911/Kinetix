@@ -1,5 +1,7 @@
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
 import com.itbm.inf2fm.kinetix.model.entity.*;
 import com.itbm.inf2fm.kinetix.model.enums.PerfilUsuario;
@@ -69,18 +71,18 @@ public class PerfilService {
         usuario.rg = limpar(request.rg());
         usuario.paisTelefoneAdicional = telefone == null ? null : pais;
         if (imagem != null) fotos.save(new FotoPerfil(id, imagem, "image/jpeg"));
-        else if (request.removerFoto() && fotos.existsById(id)) fotos.deleteById(id);
+        else if (request.removerFoto() && fotos.existsById(requireNonNull(id))) fotos.deleteById(requireNonNull(id));
         return resumo(usuario);
     }
 
     @Transactional(readOnly = true)
     public FotoPerfil foto(Long id) {
         usuario(id);
-        return fotos.findById(id).orElseThrow(() -> ErroNegocio.naoEncontrado("Foto de perfil não encontrada."));
+        return fotos.findById(requireNonNull(id)).orElseThrow(() -> ErroNegocio.naoEncontrado("Foto de perfil não encontrada."));
     }
 
     private Usuario usuario(Long id) {
-        Usuario usuario = usuarios.findById(id).filter(u -> u.ativo)
+        Usuario usuario = usuarios.findById(requireNonNull(id)).filter(u -> u.ativo)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Conta não encontrada."));
         if (usuario.perfil != PerfilUsuario.PACIENTE && usuario.perfil != PerfilUsuario.FISIO)
             throw ErroNegocio.proibido("Esta conta não possui um perfil de atendimento.");
@@ -88,7 +90,7 @@ public class PerfilService {
     }
 
     private Paciente paciente(Long id) {
-        return pacientes.findById(id).orElseThrow(() -> ErroNegocio.naoEncontrado("Perfil de paciente não encontrado."));
+        return pacientes.findById(requireNonNull(id)).orElseThrow(() -> ErroNegocio.naoEncontrado("Perfil de paciente não encontrado."));
     }
 
     private Fisioterapeuta fisioterapeuta(Long id) {
@@ -111,7 +113,7 @@ public class PerfilService {
             && limpar(cidade) != null && limpar(bairro) != null && limpar(uf) != null;
         return new ConfiguracaoPerfilResumo(u.id, u.nome, u.email, u.perfil, u.telefone,
             u.telefoneAdicional, u.paisTelefoneAdicional, limpar(cep), rua, numero, cidade, bairro,
-            limpar(uf), fotos.existsById(u.id), completo, u.rg, u.termosAceitosEm, u.termosVersao);
+            limpar(uf), fotos.existsById(requireNonNull(u.id)), completo, u.rg, u.termosAceitosEm, u.termosVersao);
     }
 
     @Transactional

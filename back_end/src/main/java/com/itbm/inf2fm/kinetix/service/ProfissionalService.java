@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ProfissionalService {
@@ -36,13 +35,13 @@ public class ProfissionalService {
         Double latitude, Double longitude, Double raioKm) {
         if ((latitude == null) != (longitude == null))
             throw ErroNegocio.invalido("Informe latitude e longitude juntas.");
-        if (latitude != null && (!Double.isFinite(latitude) || !Double.isFinite(longitude)
+        if (latitude != null && longitude != null && (!Double.isFinite(latitude) || !Double.isFinite(longitude)
             || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180))
             throw ErroNegocio.invalido("Informe coordenadas validas.");
         if (raioKm != null && (!Double.isFinite(raioKm) || raioKm <= 0 || raioKm > 100))
             throw ErroNegocio.invalido("O raio de busca deve estar entre 0 e 100 km.");
         BigDecimal minLat = null, maxLat = null, minLon = null, maxLon = null;
-        if (latitude != null) {
+        if (latitude != null && longitude != null) {
             double raio = raioKm == null ? 15 : raioKm;
             double deltaLat = raio / 111.0;
             double cos = Math.max(0.01, Math.abs(Math.cos(Math.toRadians(latitude))));
@@ -55,9 +54,12 @@ public class ProfissionalService {
         List<Fisioterapeuta> encontrados = fisioterapeutas.buscarPublicos(
             vazio(cidade), vazio(bairro), vazio(uf), especialidadeId, minLat, maxLat, minLon, maxLon, PageRequest.of(0, 100));
         return encontrados.stream().map(f -> resumir(f, latitude, longitude))
-            .filter(p -> latitude == null || p.distanciaKm() <= (raioKm == null ? 15 : raioKm))
-            .sorted(latitude == null ? Comparator.comparing(ProfissionalResumo::nome, String.CASE_INSENSITIVE_ORDER)
-                : Comparator.comparing(ProfissionalResumo::distanciaKm, Comparator.nullsLast(Double::compareTo)))
+            .filter(p -> {
+                Double distancia = p.distanciaKm();
+                return latitude == null || (distancia != null && distancia <= (raioKm == null ? 15 : raioKm));
+            })
+            .sorted(latitude == null ? Comparator.comparing((ProfissionalResumo p) -> p.nome(), String.CASE_INSENSITIVE_ORDER)
+                : Comparator.comparing((ProfissionalResumo p) -> p.distanciaKm(), Comparator.nullsLast(Comparator.naturalOrder())))
             .toList();
     }
 
@@ -183,7 +185,7 @@ public class ProfissionalService {
     @Transactional
     public ProfissionalResumo atualizarEspecialidades(Long usuarioId, EspecialidadesPerfilRequest request) {
         Fisioterapeuta f = meuPerfil(usuarioId);
-        var lista = especialidades.findAllById(request.especialidadesIds());
+        var lista = especialidades.findAllById(java.util.Objects.requireNonNull(request.especialidadesIds()));
         if (lista.size() != request.especialidadesIds().size() || lista.stream().anyMatch(e -> !e.ativa))
             throw ErroNegocio.invalido("Selecione especialidades ativas existentes.");
         f.especialidades.clear();
@@ -213,7 +215,7 @@ public class ProfissionalService {
     }
 
     private ProfissionalResumo resumir(Fisioterapeuta f, Double latitude, Double longitude) {
-        Double distancia = latitude == null ? null : distanciaKm(latitude, longitude,
+        Double distancia = latitude == null || longitude == null ? null : distanciaKm(latitude, longitude,
             f.latitude == null ? null : f.latitude.doubleValue(), f.longitude == null ? null : f.longitude.doubleValue());
         Double media = avaliacoes.mediaPublica(f.usuario.id);
         return new ProfissionalResumo(f.usuario.id, f.usuario.nome, f.usuario.fotoUrl, f.nomeClinica,

@@ -1,6 +1,8 @@
 
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
 import com.itbm.inf2fm.kinetix.model.entity.*;
 import com.itbm.inf2fm.kinetix.model.enums.PerfilUsuario;
@@ -50,7 +52,7 @@ public class ConsultaService {
         Fisioterapeuta fisio = fisioterapeutas.bloquearPorUsuarioId(request.fisioterapeutaId())
             .filter(f -> f.ativo && f.crefitoVerificado && f.usuario.ativo)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Fisioterapeuta verificado não encontrado."));
-        Paciente paciente = pacientes.findById(pacienteId)
+        Paciente paciente = pacientes.findById(requireNonNull(pacienteId))
             .orElseThrow(() -> ErroNegocio.proibido("O cadastro atual não pertence a um paciente."));
         Servico servico = servicos.findByIdAndFisioterapeuta_Usuario_IdAndAtivoTrue(request.servicoId(), fisio.usuario.id)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Serviço ativo não encontrado para este profissional."));
@@ -209,7 +211,7 @@ public class ConsultaService {
 
     @Transactional(readOnly = true)
     public MinhaAvaliacaoResumo minhaAvaliacao(Long consultaId, Long pacienteId) {
-        Consulta consulta = consultas.findById(consultaId)
+        Consulta consulta = consultas.findById(requireNonNull(consultaId))
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta nao encontrada."));
         if (!consulta.paciente.usuario.id.equals(pacienteId))
             throw ErroNegocio.proibido("Esta consulta nao pertence a sua conta.");
@@ -219,7 +221,7 @@ public class ConsultaService {
 
     @Transactional
     public void moderarAvaliacao(Long avaliacaoId, String status) {
-        Avaliacao avaliacao = avaliacoes.findById(avaliacaoId)
+        Avaliacao avaliacao = avaliacoes.findById(requireNonNull(avaliacaoId))
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Avaliação não encontrada."));
         avaliacao.status = status;
     }

@@ -1,5 +1,7 @@
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.NotificacaoResumo;
 import com.itbm.inf2fm.kinetix.model.entity.*;
 import com.itbm.inf2fm.kinetix.model.repository.*;
@@ -63,7 +65,7 @@ public class NotificacaoService {
 
     @Transactional
     public DispositivoPush registrarDispositivo(Long usuarioId, String token, String plataforma) {
-        Usuario usuario = usuarios.findById(usuarioId)
+        Usuario usuario = usuarios.findById(requireNonNull(usuarioId))
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Usuário não encontrado."));
         DispositivoPush dispositivo = dispositivos.findByToken(token).orElseGet(DispositivoPush::new);
         dispositivo.usuario = usuario;
@@ -92,14 +94,14 @@ public class NotificacaoService {
             }
             try {
                 for (DispositivoPush dispositivo : ativos) {
-                    restClient.post().uri(expoUrl).body(Map.of(
+                    restClient.post().uri(requireNonNull(expoUrl)).body(requireNonNull(Map.of(
                         "to", dispositivo.token,
                         "title", notificacao.titulo,
                         "body", notificacao.mensagem,
                         "sound", "default",
                         "data", Map.of("tipo", notificacao.consulta == null ? "PRESCRICAO" : "CONSULTA",
                             "consultaId", notificacao.consulta == null ? 0L : notificacao.consulta.id)
-                    )).retrieve().toBodilessEntity();
+                    ))).retrieve().toBodilessEntity();
                 }
                 notificacao.status = "ENVIADA";
                 notificacao.enviadoEm = OffsetDateTime.now();

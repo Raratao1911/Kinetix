@@ -99,6 +99,7 @@ public class AuthService {
             throw ErroNegocio.conflito("Já existe uma conta com este e-mail.");
     }
 
+    @org.jspecify.annotations.NonNull
     private Usuario novoUsuario(String nome, String email, String senha, String telefone,
         String documento, String foto, PerfilUsuario perfil) {
         if (senha.getBytes(StandardCharsets.UTF_8).length > 72)

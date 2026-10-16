@@ -40,15 +40,16 @@ class ProfissionalServiceTest {
     void especialidadesInexistentesOuInativasNaoSaoAceitas() {
         Fisioterapeuta f = mock(Fisioterapeuta.class);
         when(fisioterapeutas.findByUsuario_Id(7L)).thenReturn(Optional.of(f));
-        when(especialidades.findAllById(Set.of(3L))).thenReturn(List.of());
+        when(especialidades.findAllById(Objects.requireNonNull(Set.of(3L)))).thenReturn(List.of());
         assertThrows(ErroNegocio.class, () -> service.atualizarEspecialidades(7L, new EspecialidadesPerfilRequest(Set.of(3L))));
         Especialidade e = new Especialidade();
         e.ativa = false;
-        when(especialidades.findAllById(Set.of(3L))).thenReturn(List.of(e));
+        when(especialidades.findAllById(Objects.requireNonNull(Set.of(3L)))).thenReturn(List.of(e));
         assertThrows(ErroNegocio.class, () -> service.atualizarEspecialidades(7L, new EspecialidadesPerfilRequest(Set.of(3L))));
     }
 
     @Test
+    @SuppressWarnings("null") // Mockito uses a null placeholder when verifying save.
     void disponibilidadeDetectaConflitoMasPermiteVigenciasSeparadas() {
         when(fisioterapeutas.bloquearPorUsuarioId(7L)).thenReturn(Optional.of(mock(Fisioterapeuta.class)));
         DisponibilidadeSemanal d = new DisponibilidadeSemanal();
@@ -71,6 +72,8 @@ class ProfissionalServiceTest {
 
     @Test
     void buscaRejeitaCoordenadasERaioInvalidos() {
+        assertThrows(ErroNegocio.class, () -> service.buscar(null, null, null, null, 0.0, null, null));
+        assertThrows(ErroNegocio.class, () -> service.buscar(null, null, null, null, null, 0.0, null));
         assertThrows(ErroNegocio.class, () -> service.buscar(null, null, null, null, Double.NaN, 0.0, null));
         assertThrows(ErroNegocio.class, () -> service.buscar(null, null, null, null, 91.0, 0.0, null));
         assertThrows(ErroNegocio.class, () -> service.buscar(null, null, null, null, 0.0, 0.0, Double.NaN));

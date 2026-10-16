@@ -1,5 +1,7 @@
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
 import com.itbm.inf2fm.kinetix.model.entity.*;
 import com.itbm.inf2fm.kinetix.model.enums.PerfilUsuario;
@@ -61,11 +63,11 @@ public class ClinicalService {
 
     @Transactional
     public RegistroDorResumo registrarDor(Long pacienteId, RegistroDorRequest request, Long consultaId) {
-        Paciente paciente = pacientes.findById(pacienteId)
+        Paciente paciente = pacientes.findById(requireNonNull(pacienteId))
             .orElseThrow(() -> ErroNegocio.proibido("O perfil atual não é de paciente."));
         Consulta consulta = null;
         if (consultaId != null) {
-            consulta = consultas.findById(consultaId)
+            consulta = consultas.findById(requireNonNull(consultaId))
                 .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta não encontrada."));
             if (!consulta.paciente.usuario.id.equals(pacienteId))
                 throw ErroNegocio.proibido("A consulta informada não pertence ao paciente.");
@@ -93,11 +95,11 @@ public class ClinicalService {
             throw ErroNegocio.proibido("A prescrição exige um vínculo de atendimento com o paciente.");
         Fisioterapeuta fisio = fisioterapeutas.findByUsuario_Id(fisioId)
             .orElseThrow(() -> ErroNegocio.proibido("Perfil de fisioterapeuta não encontrado."));
-        Paciente paciente = pacientes.findById(pacienteId)
+        Paciente paciente = pacientes.findById(requireNonNull(pacienteId))
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Paciente não encontrado."));
         Consulta consulta = null;
         if (request.consultaId() != null) {
-            consulta = consultas.findById(request.consultaId())
+            consulta = consultas.findById(requireNonNull(request.consultaId()))
                 .orElseThrow(() -> ErroNegocio.naoEncontrado("Consulta não encontrada."));
             if (!consulta.paciente.usuario.id.equals(pacienteId) || !consulta.fisioterapeuta.usuario.id.equals(fisioId))
                 throw ErroNegocio.proibido("A consulta não pertence a este paciente e fisioterapeuta.");

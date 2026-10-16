@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
 public class ApiExceptionHandler {
     @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
     public ResponseEntity<ErroResumo> fotoMuitoGrande() {
-        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(new ErroResumo(OffsetDateTime.now(),
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(new ErroResumo(OffsetDateTime.now(),
             413, "Arquivo muito grande", "A foto enviada deve ter até 2 MB após o redimensionamento."));
     }
     @ExceptionHandler(ErroNegocio.class)

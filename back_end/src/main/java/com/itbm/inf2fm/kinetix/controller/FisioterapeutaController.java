@@ -1,7 +1,6 @@
 package com.itbm.inf2fm.kinetix.controller;
 
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
-import com.itbm.inf2fm.kinetix.model.entity.DisponibilidadeSemanal;
 import com.itbm.inf2fm.kinetix.service.ConsultaService;
 import com.itbm.inf2fm.kinetix.service.ProfissionalService;
 import com.itbm.inf2fm.kinetix.service.AdminService;

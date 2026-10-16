@@ -16,6 +16,8 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+// Mockito matchers intentionally return null placeholders when defining mock behavior.
+@SuppressWarnings("null")
 class PerfilServiceTest {
     UsuarioRepository usuarios;
     PacienteRepository pacientes;

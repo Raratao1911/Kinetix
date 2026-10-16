@@ -1,5 +1,7 @@
 package com.itbm.inf2fm.kinetix.service;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itbm.inf2fm.kinetix.dto.ApiDtos.*;
 import com.itbm.inf2fm.kinetix.model.entity.*;
 import com.itbm.inf2fm.kinetix.model.repository.*;
@@ -53,7 +55,7 @@ public class AdminService {
     public AssinaturaResumo solicitarAssinatura(Long usuarioId, Long planoId) {
         Fisioterapeuta fisio=fisioterapeutas.bloquearPorUsuarioId(usuarioId)
             .orElseThrow(()->ErroNegocio.proibido("Somente fisioterapeutas podem solicitar uma assinatura."));
-        PlanoAssinatura plano=planos.findById(planoId).filter(p->p.ativo)
+        PlanoAssinatura plano=planos.findById(requireNonNull(planoId)).filter(p->p.ativo)
             .orElseThrow(()->ErroNegocio.naoEncontrado("Plano ativo não encontrado."));
         if (assinaturas.findByFisioterapeuta_Usuario_IdOrderByInicioDesc(usuarioId).stream()
             .anyMatch(a -> "PENDENTE".equals(a.status) || "ATIVA".equals(a.status)))
@@ -99,7 +101,7 @@ public class AdminService {
         Long profissionalId = assinaturas.profissionalDaAssinatura(id)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Assinatura nao encontrada."));
         fisioterapeutas.bloquearPorUsuarioId(profissionalId).orElseThrow();
-        Assinatura a = assinaturas.findById(id)
+        Assinatura a = assinaturas.findById(requireNonNull(id))
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Assinatura nao encontrada."));
         if (!"PENDENTE".equals(a.status) && !"ATIVA".equals(a.status))
             throw ErroNegocio.conflito("Esta assinatura ja foi encerrada.");
