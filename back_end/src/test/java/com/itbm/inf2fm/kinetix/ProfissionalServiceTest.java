@@ -49,7 +49,6 @@ class ProfissionalServiceTest {
     }
 
     @Test
-    @SuppressWarnings("null") // Mockito uses a null placeholder when verifying save.
     void disponibilidadeDetectaConflitoMasPermiteVigenciasSeparadas() {
         when(fisioterapeutas.bloquearPorUsuarioId(7L)).thenReturn(Optional.of(mock(Fisioterapeuta.class)));
         DisponibilidadeSemanal d = new DisponibilidadeSemanal();

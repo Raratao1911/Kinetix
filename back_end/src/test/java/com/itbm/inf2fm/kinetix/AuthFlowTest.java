@@ -47,8 +47,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "debug=false", "logging.level.root=WARN", "logging.level.org.springframework.web=WARN"
 })
 @AutoConfigureMockMvc
-// Mockito matchers use null placeholders; Jackson results are checked by the HTTP assertions.
-@SuppressWarnings("null")
 class AuthFlowTest {
     @SpringBootConfiguration
     @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,

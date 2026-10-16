@@ -20,7 +20,6 @@ class AdminServiceTest {
     private PlanoAssinatura plano;
 
     @BeforeEach
-    @SuppressWarnings("null") // Mockito uses null placeholders for argument matchers.
     void setup() {
         assinaturas = mock(AssinaturaRepository.class); fisios = mock(FisioterapeutaRepository.class);
         planos = mock(PlanoAssinaturaRepository.class);
@@ -72,7 +71,6 @@ class AdminServiceTest {
     }
 
     @Test
-    @SuppressWarnings("null") // The matcher is not an actual entity sent to persistence.
     void planoRejeitaValorNegativo() {
         assertThrows(ErroNegocio.class, () -> service.criarPlano(new PlanoAssinaturaRequest("Teste", "", new BigDecimal("-1"))));
         verify(planos, never()).save(any());
