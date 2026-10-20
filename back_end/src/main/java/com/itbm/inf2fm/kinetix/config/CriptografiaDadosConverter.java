@@ -2,6 +2,8 @@ package com.itbm.inf2fm.kinetix.config;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,12 +11,18 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
+@Component
 @Converter
 public class CriptografiaDadosConverter implements AttributeConverter<String, String> {
     private static final String ENV_KEY = "KINETIX_DATA_ENCRYPTION_KEY";
     private static final int NONCE_LENGTH = 12;
     private static final int TAG_BITS = 128;
     private static final SecureRandom RANDOM = new SecureRandom();
+    private final Environment environment;
+
+    public CriptografiaDadosConverter(Environment environment) {
+        this.environment = environment;
+    }
 
     @Override
     public String convertToDatabaseColumn(String plainText) {
@@ -49,8 +57,8 @@ public class CriptografiaDadosConverter implements AttributeConverter<String, St
         }
     }
 
-    private static SecretKeySpec key() {
-        String encoded = System.getenv(ENV_KEY);
+    private SecretKeySpec key() {
+        String encoded = environment.getProperty(ENV_KEY);
         if (encoded == null || encoded.isBlank()) {
             throw new IllegalStateException("Configure KINETIX_DATA_ENCRYPTION_KEY antes de acessar dados clínicos.");
         }

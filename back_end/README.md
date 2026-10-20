@@ -42,7 +42,7 @@ de ambiente do processo:
 - `KINETIX_WEB_ORIGINS`: origens permitidas pelo CORS.
 - `KINETIX_TIME_ZONE`: fuso das agendas; padrao `America/Sao_Paulo`.
 
-A chave de criptografia precisa estar no ambiente do processo Java. Preserve a
+A chave de criptografia pode estar no `.env` ou no ambiente do processo Java. Preserve a
 chave existente: troca-la impede a leitura dos dados clinicos ja gravados.
 Nao versione senhas nem chaves.
 

@@ -171,6 +171,19 @@ npm run dev
 ```
 
 Portas: web `http://localhost:5173`, API `http://localhost:8080/api/v1`, SQL Server `localhost:1433`.
+O proxy `/api` do desenvolvimento (5173) e do preview (4173) aponta para a API
+na porta 8080. Para alterar o destino local, configure `VITE_PROXY_TARGET` em
+`web/.env`; no Docker, o destino e `http://backend:8080`.
+
+Se um SQL Server local ja ocupar 1433, use outra porta externa para o container:
+
+```powershell
+$env:KINETIX_SQL_PORT = '1434'
+docker compose up -d
+```
+
+A API continua acessando `sqlserver:1433` dentro do Docker.
+
 O servico `sqlserver-init` deve terminar com codigo 0. O banco persiste no volume `sqlserver-data`.
 As credenciais e chaves do Compose sao exemplos para desenvolvimento local.
 

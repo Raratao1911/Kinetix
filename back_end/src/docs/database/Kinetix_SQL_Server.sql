@@ -305,3 +305,5 @@ CREATE INDEX ix_avaliacoes_fisio_publicas ON dbo.avaliacoes (fisioterapeuta_id, 
 CREATE INDEX ix_notificacoes_pendentes ON dbo.notificacoes (status, enviar_em) INCLUDE (usuario_id, consulta_id);
 CREATE INDEX ix_auditoria_saude_paciente_data ON dbo.auditoria_acesso_saude (paciente_id, acessado_em DESC);
 
+
+SELECT *FROM usuarios

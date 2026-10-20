@@ -7,7 +7,7 @@ services:
       MSSQL_SA_PASSWORD: "Kinetix@12345"
       MSSQL_PID: "Developer"
     ports:
-      - "1433:1433"
+      - "${KINETIX_SQL_PORT:-1433}:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
@@ -45,12 +45,13 @@ services:
       sqlserver-init:
         condition: service_completed_successfully
     environment:
+      PORT: "8080"
       KINETIX_DB_URL: "jdbc:sqlserver://sqlserver:1433;databaseName=Kinetix;encrypt=true;trustServerCertificate=true"
       KINETIX_DB_USERNAME: "sa"
       KINETIX_DB_PASSWORD: "Kinetix@12345"
       KINETIX_JWT_SECRET_BASE64: "S2luZXRpeEp3dFNlY3JldEtleV8yMDI2XzMyYnl0ZXM="
       KINETIX_DATA_ENCRYPTION_KEY: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
-      KINETIX_WEB_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173"
+      KINETIX_WEB_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173"
     volumes:
       - ./back_end:/app
       - backend-maven-cache:/root/.m2
