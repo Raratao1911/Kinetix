@@ -39,8 +39,21 @@ public class SegurancaConfig {
     JwtEncoder jwtEncoder(SecretKey key) { return new NimbusJwtEncoder(new ImmutableSecret<>(key)); }
 
     @Bean
-    JwtDecoder jwtDecoder(SecretKey key) {
-        return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+    JwtDecoder jwtDecoder(SecretKey key, com.itbm.inf2fm.kinetix.model.repository.UsuarioRepository usuarios) {
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+        org.springframework.security.oauth2.core.OAuth2TokenValidator<Jwt> versao = jwt -> {
+            try {
+                Number claim = jwt.getClaim("versaoSenha");
+                int emitida = claim == null ? 0 : claim.intValue();
+                if (usuarios.versaoSenha(Long.valueOf(jwt.getSubject())).filter(v -> v == emitida).isPresent())
+                    return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success();
+            } catch (IllegalArgumentException ignored) {}
+            return org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failure(
+                new org.springframework.security.oauth2.core.OAuth2Error("invalid_token", "Sessão inválida. Entre novamente.", null));
+        };
+        decoder.setJwtValidator(new org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator<>(
+            JwtValidators.createDefaultWithIssuer("kinetix-api"), versao));
+        return decoder;
     }
 
     @Bean

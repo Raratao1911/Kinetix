@@ -50,7 +50,7 @@ public class ConsultaService {
         // A linha do profissional permanece bloqueada até o commit. Todas as reservas
         // do mesmo profissional passam por ela antes da consulta de sobreposição.
         Fisioterapeuta fisio = fisioterapeutas.bloquearPorUsuarioId(request.fisioterapeutaId())
-            .filter(f -> f.ativo && f.crefitoVerificado && f.usuario.ativo)
+            .filter(f -> f.ativo && (f.crefitoVerificado || f.usuario.demonstracao) && f.usuario.ativo)
             .orElseThrow(() -> ErroNegocio.naoEncontrado("Fisioterapeuta verificado não encontrado."));
         Paciente paciente = pacientes.findById(requireNonNull(pacienteId))
             .orElseThrow(() -> ErroNegocio.proibido("O cadastro atual não pertence a um paciente."));

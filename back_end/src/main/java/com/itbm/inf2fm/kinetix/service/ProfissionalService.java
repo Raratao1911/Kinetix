@@ -228,7 +228,7 @@ public class ProfissionalService {
         return new ProfissionalResumo(f.usuario.id, f.usuario.nome, f.usuario.fotoUrl, f.nomeClinica,
             f.apresentacao, f.bairro, f.cidade, f.uf, f.logradouro, f.numero, f.complemento,
             f.latitude, f.longitude, f.crefitoUf, f.especialidades.stream().map(e -> e.nome).collect(java.util.stream.Collectors.toSet()),
-            media == null ? 0 : media, avaliacoes.totalPublicas(f.usuario.id), distancia, f.crefitoVerificado);
+            media == null ? 0 : media, avaliacoes.totalPublicas(f.usuario.id), distancia, f.crefitoVerificado, f.usuario.demonstracao);
     }
 
     private ServicoResumo resumirServico(Servico s) {

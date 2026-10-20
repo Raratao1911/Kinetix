@@ -82,6 +82,7 @@ class AuthFlowTest {
     @BeforeEach
     void persistence() {
         contas.clear();
+        when(usuarios.versaoSenha(anyLong())).thenReturn(Optional.of(0));
         AtomicLong ids = new AtomicLong();
         when(usuarios.existsByEmailIgnoreCase(anyString()))
             .thenAnswer(call -> contas.containsKey(call.getArgument(0, String.class).toLowerCase()));

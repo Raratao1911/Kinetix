@@ -26,7 +26,7 @@ public class JwtService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("kinetix-api").issuedAt(agora).expiresAt(expira)
             .subject(usuario.id.toString()).claim("role", usuario.perfil.name())
-            .claim("email", usuario.email).build();
+            .claim("versaoSenha", usuario.versaoSenha).claim("email", usuario.email).build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
         return new AuthResponse(usuario.id, usuario.nome, usuario.perfil, token, "Bearer",

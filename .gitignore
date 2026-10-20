@@ -28,3 +28,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Ferramentas e credenciais de demonstracao locais
+.local/

@@ -66,6 +66,7 @@ export default function SearchPage() {
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200"><Stethoscope size={25} /></div>
           <div className="min-w-0"><h2 className="break-words text-lg font-semibold"><Link to={`/profissionais/${p.id}`} className="hover:underline">{p.nome}</Link></h2>
             <p className="kx-muted mt-1 break-words">{p.especialidades.join(" · ") || "Fisioterapia"}</p>
+            {p.demonstracao && <p className="mt-2 text-sm font-semibold text-amber-700 dark:text-amber-300">Perfil fictício de demonstração</p>}
             {p.nomeClinica && <p className="mt-1 break-words text-sm">{p.nomeClinica}</p>}
             <p className="kx-muted mt-2 flex items-center gap-1"><MapPin size={15} className="shrink-0" /><span>{[p.bairro, p.cidade, p.uf].filter(Boolean).join(", ")}{Number.isFinite(p.distanciaKm) && p.distanciaKm != null ? ` · ${p.distanciaKm.toFixed(1)} km` : ""}</span></p>
             {p.totalAvaliacoes > 0 && <p className="kx-muted mt-1 flex items-center gap-1"><Star size={14} />{p.avaliacaoMedia.toFixed(1)} ({p.totalAvaliacoes} avaliações)</p>}

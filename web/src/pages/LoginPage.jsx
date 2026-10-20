@@ -63,6 +63,8 @@ export default function LoginPage() {
           />
         </label>
 
+        <div className="text-right"><Link to="/esqueci-senha" className="rounded text-base font-bold text-sky underline decoration-2 underline-offset-4 transition hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky dark:text-mint">Esqueci minha senha</Link></div>
+
         {error && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
         <button
@@ -76,7 +78,10 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-slate-600 dark:text-darkTheme-muted">
           Ainda não tem conta?{" "}
-          <Link className="font-semibold text-sky" to="/cadastro">
+          <Link
+            className="rounded text-base font-bold text-sky underline decoration-2 underline-offset-4 transition hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky dark:text-mint"
+            to="/cadastro"
+          >
             Criar conta
           </Link>
         </p>

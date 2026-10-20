@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
 import "./styles.css";
 import { AuthProvider, useAuth } from "./state/AuthContext.jsx";
+import PasswordResetPage from "./pages/PasswordResetPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
@@ -65,6 +66,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/esqueci-senha" element={<PasswordResetPage key="solicitar" />} />
+          <Route path="/redefinir-senha" element={<PasswordResetPage key="redefinir" />} />
           <Route path="/cadastro" element={<RegisterPage />} />
           <Route path="/profissionais" element={<SearchPage />} />
           <Route path="/planos" element={<PlansPage />} />

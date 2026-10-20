@@ -15,6 +15,10 @@ public class Usuario {
     public String email;
     @Column(name = "senha_hash", nullable = false, length = 100)
     public String senhaHash;
+    @Column(name = "versao_senha", nullable = false)
+    public int versaoSenha;
+    @Column(nullable = false)
+    public boolean demonstracao;
     @Column(length = 30)
     public String telefone;
     @Column(name = "telefone_adicional", length = 16)

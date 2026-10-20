@@ -70,7 +70,7 @@ export default function ProfessionalPage() {
       <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr]">
         <section className="min-w-0">
           <div className="flex items-center gap-3"><Stethoscope size={24} /><p className="break-words font-medium">{p.especialidades.join(" · ") || "Fisioterapia"}</p></div>
-          <p className="mt-3 inline-flex items-center gap-2 text-sm text-green-700 dark:text-green-300"><CheckCircle2 size={17} />Registro profissional verificado</p>
+          <p className="mt-3 inline-flex items-center gap-2 text-sm text-green-700 dark:text-green-300"><CheckCircle2 size={17} />{p.demonstracao ? "Perfil fictício para demonstração · sem registro profissional real" : "Registro profissional verificado"}</p>
           {p.nomeClinica && <h2 className="mt-5 break-words text-lg font-semibold">{p.nomeClinica}</h2>}
           <p className="kx-muted mt-2 flex items-start gap-2"><MapPin size={18} className="shrink-0" /><span>{[p.logradouro, p.numero, p.complemento, p.bairro, p.cidade, p.uf].filter(Boolean).join(", ")}</span></p>
           {p.apresentacao && <p className="mt-6 whitespace-pre-wrap break-words text-sm leading-7">{p.apresentacao}</p>}

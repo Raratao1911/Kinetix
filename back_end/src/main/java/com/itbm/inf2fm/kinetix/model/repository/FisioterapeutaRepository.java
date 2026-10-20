@@ -21,7 +21,7 @@ public interface FisioterapeutaRepository extends JpaRepository<Fisioterapeuta, 
 
     @EntityGraph(attributePaths = {"usuario", "especialidades"})
     @Query("select distinct f from Fisioterapeuta f " +
-        "where f.ativo = true and f.crefitoVerificado = true and f.usuario.ativo = true " +
+        "where f.ativo = true and (f.crefitoVerificado = true or f.usuario.demonstracao = true) and f.usuario.ativo = true " +
         "and (:cidade is null or lower(f.cidade) like lower(concat('%', :cidade, '%'))) " +
         "and (:bairro is null or lower(f.bairro) like lower(concat('%', :bairro, '%'))) " +
         "and (:uf is null or upper(f.uf) = upper(:uf)) " +
@@ -35,7 +35,7 @@ public interface FisioterapeutaRepository extends JpaRepository<Fisioterapeuta, 
         @Param("minLon") BigDecimal minLon, @Param("maxLon") BigDecimal maxLon, Pageable pageable);
 
     @EntityGraph(attributePaths = {"usuario", "especialidades"})
-    @Query("select f from Fisioterapeuta f where f.usuario.id = :id and f.ativo = true and f.crefitoVerificado = true and f.usuario.ativo = true")
+    @Query("select f from Fisioterapeuta f where f.usuario.id = :id and f.ativo = true and (f.crefitoVerificado = true or f.usuario.demonstracao = true) and f.usuario.ativo = true")
     Optional<Fisioterapeuta> buscarPerfilPublico(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"usuario", "especialidades"})

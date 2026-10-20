@@ -233,3 +233,57 @@ nao define bloqueios por plano. Nao ha verificacao automatica de identidade por 
 
 O catalogo de exercicios pode ser alimentado por fisioterapeutas autenticados no prescritor.
 Os testes de navegador incluem os fluxos profissionais, busca publica, reserva, cancelamento e prontuario.
+
+
+## Redefinicao de senha e e-mail local
+
+Na tela de login, use **Esqueci minha senha**. O link enviado por SMTP expira em
+30 minutos, so pode ser utilizado uma vez e uma nova solicitacao invalida o link
+anterior. Ha um intervalo minimo de um minuto entre envios para a mesma conta.
+A resposta de solicitacao e igual para e-mails conhecidos e desconhecidos.
+A troca de senha revoga os JWTs anteriores. A senha usa BCrypt; apenas o hash
+SHA-256 do token de recuperacao e armazenado no banco.
+
+O ambiente local usa [Mailpit](https://mailpit.axllent.org/docs/install/):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/start-mailpit.ps1
+```
+
+A caixa de testes fica em `http://localhost:8025`; SMTP em `127.0.0.1:1025`.
+O executavel instalado e as mensagens ficam em `.local/mailpit/`, ignorado pelo Git.
+Esse servidor captura mensagens para testes; nao entrega em Gmail/Outlook.
+Para envio externo, configure no `.env` `KINETIX_SMTP_HOST`, `KINETIX_SMTP_PORT`,
+`KINETIX_SMTP_USERNAME`, `KINETIX_SMTP_PASSWORD`, `KINETIX_SMTP_AUTH=true`,
+`KINETIX_SMTP_STARTTLS=true`, `KINETIX_MAIL_FROM` e `KINETIX_WEB_URL` com a origem
+publica do frontend. Use as credenciais e o remetente autorizado pelo provedor.
+
+Teste real pelo navegador, com API, Vite e Mailpit ativos (cria conta sintetica):
+
+```powershell
+cd web
+node testes/integracao/redefinicao-real.mjs
+```
+
+## Fisioterapeutas de demonstracao
+
+Foram preparados 43 perfis: um por UF (26 estados e DF, nas capitais) e um para
+cada um dos 16 bairros oficiais de Barueri. Fonte dos bairros:
+[Plano Municipal de Saude de Barueri 2026–2029](https://portal.barueri.sp.gov.br/arquivos/sites/SS-Secretaria_Saude/Plano_Municipal_2026-2029_Completo_e_Aprovado_pelo_Conselho.pdf).
+Os perfis, registros, enderecos, valores e horarios sao ficticios. A marca
+`demonstracao` permite identifica-los na busca, sem verificar um CREFITO real.
+Cada perfil tem um servico demonstrativo e agenda de segunda a sexta, 9h a 17h.
+
+Para popular outro banco de desenvolvimento, defina `KINETIX_DEMO_PASSWORD`
+no `.env` (12 a 72 bytes) e execute explicitamente:
+
+```powershell
+cd back_end
+.\mvnw.cmd spring-boot:run '-Dspring-boot.run.arguments=--kinetix.demo.seed=true'
+```
+
+A inicializacao normal nao cria esses usuarios. O cadastro e idempotente por e-mail:
+contas existentes e suas senhas sao preservadas. A lista versionada esta em
+`back_end/src/main/resources/demo/fisioterapeutas.csv`; uma copia local esta em
+`.local/usuarios-demo.csv`. A senha local esta apenas em `KINETIX_DEMO_PASSWORD`
+no `.env`, ignorado pelo Git. Os perfis nao recebem aceite de termos inventado.
