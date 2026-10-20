@@ -104,6 +104,13 @@ public class ProfissionalService {
             .stream().map(this::resumirServico).toList();
     }
 
+    @Transactional(readOnly = true)
+    public ServicoResumo meuServico(Long usuarioId, Long servicoId) {
+        Servico servico = servicos.findByIdAndFisioterapeuta_Usuario_IdAndAtivoTrue(servicoId, usuarioId)
+            .orElseThrow(() -> ErroNegocio.naoEncontrado("Serviço não encontrado."));
+        return resumirServico(servico);
+    }
+
     @Transactional
     public ServicoResumo atualizarServico(Long usuarioId, Long servicoId, ServicoRequest request) {
         Servico servico = servicos.findByIdAndFisioterapeuta_Usuario_IdAndAtivoTrue(servicoId, usuarioId)

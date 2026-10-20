@@ -1,0 +1,48 @@
+@baseUrl = http://localhost:8080/api/v1
+@token = COLE_AQUI_O_TOKEN_JWT_DE_UM_FISIOTERAPEUTA
+@servicoId = 1
+
+### Login do fisioterapeuta (copie o campo token da resposta)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "fisioterapeuta@exemplo.com",
+  "senha": "SenhaSegura123"
+}
+
+### Listar serviços
+GET {{baseUrl}}/fisioterapeuta/servicos
+Authorization: Bearer {{token}}
+
+### Buscar serviço por ID
+GET {{baseUrl}}/fisioterapeuta/servicos/{{servicoId}}
+Authorization: Bearer {{token}}
+
+### Cadastrar serviço
+POST {{baseUrl}}/fisioterapeuta/servicos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Avaliação fisioterapêutica",
+  "descricao": "Avaliação funcional inicial",
+  "duracaoMinutos": 60,
+  "preco": 150.00
+}
+
+### Atualizar serviço
+PUT {{baseUrl}}/fisioterapeuta/servicos/{{servicoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Avaliação fisioterapêutica completa",
+  "descricao": "Avaliação funcional e definição do plano terapêutico",
+  "duracaoMinutos": 75,
+  "preco": 180.00
+}
+
+### Excluir (desativar) serviço
+DELETE {{baseUrl}}/fisioterapeuta/servicos/{{servicoId}}
+Authorization: Bearer {{token}}

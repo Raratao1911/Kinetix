@@ -19,4 +19,18 @@ public class DispositivoPush {
     @Column(name = "criado_em", nullable = false)
     public OffsetDateTime criadoEm = OffsetDateTime.now();
     public DispositivoPush() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
+    public String getPlataforma() { return plataforma; }
+    public void setPlataforma(String plataforma) { this.plataforma = plataforma; }
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

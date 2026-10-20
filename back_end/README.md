@@ -1,7 +1,19 @@
 # Kinetix API
 
-Backend Java 21 e Spring Boot. O frontend fica em `../web/`.
-Consulte o [guia principal](../README.md) para os fluxos e as telas.
+Backend Java 21 e Spring Boot do projeto de TCC KINETIX.
+
+O código segue a estrutura trabalhada nas páginas 1 a 79 da apostila:
+
+- `model/entity`: entidades do DER, anotações JPA, relacionamentos, getters e setters;
+- `model/repository`: repositórios Spring Data JPA;
+- `service`: regras de negócio e operações de CRUD;
+- `controller`: endpoints REST em `/api/v1`;
+- `config`: segurança JWT e CORS para os clientes web/mobile.
+
+Um CRUD completo adaptado ao domínio pode ser testado em
+[`src/docs/requests/servicos.http`](src/docs/requests/servicos.http): listar,
+buscar por ID, cadastrar, atualizar e excluir logicamente um serviço do
+fisioterapeuta autenticado.
 
 ## Banco de dados
 
@@ -53,4 +65,5 @@ local, siga a secao Administrador Local do guia principal.
 ```
 
 Os testes Java ficam em `src/test/`. O teste com API e banco reais fica em
-`../scripts/test-auth.ps1`; ele cria contas sinteticas, sem apagar dados existentes.
+`../scripts/test-auth.ps1`, quando esse script estiver disponível no projeto
+completo; ele cria contas sintéticas, sem apagar dados existentes.

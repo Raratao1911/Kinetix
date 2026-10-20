@@ -15,6 +15,7 @@ class ProfissionalServiceTest {
     private FisioterapeutaRepository fisioterapeutas;
     private DisponibilidadeRepository disponibilidades;
     private EspecialidadeRepository especialidades;
+    private ServicoRepository servicos;
     private ProfissionalService service;
 
     @BeforeEach
@@ -22,8 +23,25 @@ class ProfissionalServiceTest {
         fisioterapeutas = mock(FisioterapeutaRepository.class);
         disponibilidades = mock(DisponibilidadeRepository.class);
         especialidades = mock(EspecialidadeRepository.class);
-        service = new ProfissionalService(fisioterapeutas, mock(ServicoRepository.class),
+        servicos = mock(ServicoRepository.class);
+        service = new ProfissionalService(fisioterapeutas, servicos,
             mock(AvaliacaoRepository.class), especialidades, mock(PlanoAssinaturaRepository.class), disponibilidades);
+    }
+
+    @Test
+    void buscaServicoPorIdSomenteDoProfissionalAutenticado() {
+        Servico servico = new Servico();
+        servico.id = 15L;
+        servico.nome = "Avaliação fisioterapêutica";
+        servico.duracaoMinutos = 60;
+        when(servicos.findByIdAndFisioterapeuta_Usuario_IdAndAtivoTrue(15L, 7L))
+            .thenReturn(Optional.of(servico));
+
+        ServicoResumo resumo = service.meuServico(7L, 15L);
+
+        assertEquals(15L, resumo.id());
+        assertEquals("Avaliação fisioterapêutica", resumo.nome());
+        assertThrows(ErroNegocio.class, () -> service.meuServico(8L, 15L));
     }
 
     @Test

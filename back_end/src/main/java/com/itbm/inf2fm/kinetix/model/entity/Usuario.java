@@ -40,4 +40,36 @@ public class Usuario {
     public OffsetDateTime criadoEm = OffsetDateTime.now();
 
     public Usuario() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getSenhaHash() { return senhaHash; }
+    public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+    public String getTelefoneAdicional() { return telefoneAdicional; }
+    public void setTelefoneAdicional(String telefoneAdicional) { this.telefoneAdicional = telefoneAdicional; }
+    public String getPaisTelefoneAdicional() { return paisTelefoneAdicional; }
+    public void setPaisTelefoneAdicional(String paisTelefoneAdicional) { this.paisTelefoneAdicional = paisTelefoneAdicional; }
+    public String getDocumentoIdentidade() { return documentoIdentidade; }
+    public void setDocumentoIdentidade(String documentoIdentidade) { this.documentoIdentidade = documentoIdentidade; }
+    public String getRg() { return rg; }
+    public void setRg(String rg) { this.rg = rg; }
+    public OffsetDateTime getTermosAceitosEm() { return termosAceitosEm; }
+    public void setTermosAceitosEm(OffsetDateTime termosAceitosEm) { this.termosAceitosEm = termosAceitosEm; }
+    public String getTermosVersao() { return termosVersao; }
+    public void setTermosVersao(String termosVersao) { this.termosVersao = termosVersao; }
+    public String getFotoUrl() { return fotoUrl; }
+    public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }
+    public PerfilUsuario getPerfil() { return perfil; }
+    public void setPerfil(PerfilUsuario perfil) { this.perfil = perfil; }
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

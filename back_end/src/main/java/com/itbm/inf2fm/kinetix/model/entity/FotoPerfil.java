@@ -18,4 +18,12 @@ public class FotoPerfil {
         this.conteudo = conteudo;
         this.tipo = tipo;
     }
+
+    // Getters e setters
+    public Long getUsuarioId() { return usuarioId; }
+    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+    public byte[] getConteudo() { return conteudo; }
+    public void setConteudo(byte[] conteudo) { this.conteudo = conteudo; }
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 }

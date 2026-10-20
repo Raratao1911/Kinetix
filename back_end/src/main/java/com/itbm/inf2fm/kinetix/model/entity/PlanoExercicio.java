@@ -29,4 +29,26 @@ public class PlanoExercicio {
     @Column(name = "criado_em", nullable = false)
     public OffsetDateTime criadoEm = OffsetDateTime.now();
     public PlanoExercicio() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Fisioterapeuta getFisioterapeuta() { return fisioterapeuta; }
+    public void setFisioterapeuta(Fisioterapeuta fisioterapeuta) { this.fisioterapeuta = fisioterapeuta; }
+    public Paciente getPaciente() { return paciente; }
+    public void setPaciente(Paciente paciente) { this.paciente = paciente; }
+    public Consulta getConsulta() { return consulta; }
+    public void setConsulta(Consulta consulta) { this.consulta = consulta; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getOrientacoes() { return orientacoes; }
+    public void setOrientacoes(String orientacoes) { this.orientacoes = orientacoes; }
+    public LocalDate getInicio() { return inicio; }
+    public void setInicio(LocalDate inicio) { this.inicio = inicio; }
+    public LocalDate getFim() { return fim; }
+    public void setFim(LocalDate fim) { this.fim = fim; }
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

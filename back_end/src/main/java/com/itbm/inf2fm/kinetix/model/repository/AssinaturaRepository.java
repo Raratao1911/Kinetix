@@ -7,8 +7,7 @@ import java.util.Optional;
 public interface AssinaturaRepository extends JpaRepository<Assinatura,Long> {
     @Override
     @EntityGraph(attributePaths = {"plano", "fisioterapeuta.usuario"})
-    @org.jspecify.annotations.NonNull
-    Optional<Assinatura> findById(@org.jspecify.annotations.NonNull Long id);
+    Optional<Assinatura> findById(Long id);
     @org.springframework.data.jpa.repository.Query("select a.fisioterapeuta.usuario.id from Assinatura a where a.id = :id")
     java.util.Optional<Long> profissionalDaAssinatura(@org.springframework.data.repository.query.Param("id") Long id);
     @EntityGraph(attributePaths = "plano")

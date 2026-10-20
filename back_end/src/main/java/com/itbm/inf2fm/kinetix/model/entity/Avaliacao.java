@@ -26,4 +26,22 @@ public class Avaliacao {
     @Column(name = "criado_em", nullable = false)
     public OffsetDateTime criadoEm = OffsetDateTime.now();
     public Avaliacao() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Consulta getConsulta() { return consulta; }
+    public void setConsulta(Consulta consulta) { this.consulta = consulta; }
+    public Paciente getPaciente() { return paciente; }
+    public void setPaciente(Paciente paciente) { this.paciente = paciente; }
+    public Fisioterapeuta getFisioterapeuta() { return fisioterapeuta; }
+    public void setFisioterapeuta(Fisioterapeuta fisioterapeuta) { this.fisioterapeuta = fisioterapeuta; }
+    public int getNota() { return nota; }
+    public void setNota(int nota) { this.nota = nota; }
+    public String getComentario() { return comentario; }
+    public void setComentario(String comentario) { this.comentario = comentario; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
 }

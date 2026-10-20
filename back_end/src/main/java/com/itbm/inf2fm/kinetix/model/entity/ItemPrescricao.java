@@ -29,4 +29,24 @@ public class ItemPrescricao {
     @Column(name = "orientacoes_enc", columnDefinition = "nvarchar(max)")
     public String orientacoes;
     public ItemPrescricao() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public PlanoExercicio getPlano() { return plano; }
+    public void setPlano(PlanoExercicio plano) { this.plano = plano; }
+    public Exercicio getExercicio() { return exercicio; }
+    public void setExercicio(Exercicio exercicio) { this.exercicio = exercicio; }
+    public int getOrdem() { return ordem; }
+    public void setOrdem(int ordem) { this.ordem = ordem; }
+    public Integer getSeries() { return series; }
+    public void setSeries(Integer series) { this.series = series; }
+    public Integer getRepeticoes() { return repeticoes; }
+    public void setRepeticoes(Integer repeticoes) { this.repeticoes = repeticoes; }
+    public Integer getDuracaoSegundos() { return duracaoSegundos; }
+    public void setDuracaoSegundos(Integer duracaoSegundos) { this.duracaoSegundos = duracaoSegundos; }
+    public String getFrequencia() { return frequencia; }
+    public void setFrequencia(String frequencia) { this.frequencia = frequencia; }
+    public String getOrientacoes() { return orientacoes; }
+    public void setOrientacoes(String orientacoes) { this.orientacoes = orientacoes; }
 }

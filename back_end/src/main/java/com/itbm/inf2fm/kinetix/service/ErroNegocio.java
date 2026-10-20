@@ -1,9 +1,8 @@
 package com.itbm.inf2fm.kinetix.service;
 import org.springframework.http.HttpStatus;
 public class ErroNegocio extends RuntimeException {
-    private final @org.jspecify.annotations.NonNull HttpStatus status;
+    private final HttpStatus status;
     public ErroNegocio(HttpStatus status, String message) { super(message); this.status = java.util.Objects.requireNonNull(status); }
-    @org.jspecify.annotations.NonNull
     public HttpStatus getStatus() { return status; }
     public static ErroNegocio naoEncontrado(String m) { return new ErroNegocio(HttpStatus.NOT_FOUND, m); }
     public static ErroNegocio conflito(String m) { return new ErroNegocio(HttpStatus.CONFLICT, m); }

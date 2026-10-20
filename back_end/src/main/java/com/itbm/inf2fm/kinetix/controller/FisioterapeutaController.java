@@ -63,6 +63,11 @@ public class FisioterapeutaController {
         return profissionais.meusServicos(id(jwt));
     }
 
+    @GetMapping("/servicos/{servicoId}")
+    public ServicoResumo meuServico(@AuthenticationPrincipal Jwt jwt, @PathVariable Long servicoId) {
+        return profissionais.meuServico(id(jwt), servicoId);
+    }
+
     @PutMapping("/servicos/{servicoId}")
     public ServicoResumo atualizarServico(@AuthenticationPrincipal Jwt jwt, @PathVariable Long servicoId,
         @Valid @RequestBody ServicoRequest request) {

@@ -39,4 +39,32 @@ public class Consulta {
     public OffsetDateTime atualizadoEm = OffsetDateTime.now();
     @PreUpdate void atualizarData() { atualizadoEm = OffsetDateTime.now(); }
     public Consulta() {}
+
+    // Getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Paciente getPaciente() { return paciente; }
+    public void setPaciente(Paciente paciente) { this.paciente = paciente; }
+    public Fisioterapeuta getFisioterapeuta() { return fisioterapeuta; }
+    public void setFisioterapeuta(Fisioterapeuta fisioterapeuta) { this.fisioterapeuta = fisioterapeuta; }
+    public Servico getServico() { return servico; }
+    public void setServico(Servico servico) { this.servico = servico; }
+    public OffsetDateTime getInicio() { return inicio; }
+    public void setInicio(OffsetDateTime inicio) { this.inicio = inicio; }
+    public OffsetDateTime getFim() { return fim; }
+    public void setFim(OffsetDateTime fim) { this.fim = fim; }
+    public StatusConsulta getStatus() { return status; }
+    public void setStatus(StatusConsulta status) { this.status = status; }
+    public boolean isReservaAtiva() { return reservaAtiva; }
+    public void setReservaAtiva(boolean reservaAtiva) { this.reservaAtiva = reservaAtiva; }
+    public BigDecimal getPreco() { return preco; }
+    public void setPreco(BigDecimal preco) { this.preco = preco; }
+    public int getDuracaoMinutos() { return duracaoMinutos; }
+    public void setDuracaoMinutos(int duracaoMinutos) { this.duracaoMinutos = duracaoMinutos; }
+    public String getMotivoCancelamento() { return motivoCancelamento; }
+    public void setMotivoCancelamento(String motivoCancelamento) { this.motivoCancelamento = motivoCancelamento; }
+    public OffsetDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(OffsetDateTime criadoEm) { this.criadoEm = criadoEm; }
+    public OffsetDateTime getAtualizadoEm() { return atualizadoEm; }
+    public void setAtualizadoEm(OffsetDateTime atualizadoEm) { this.atualizadoEm = atualizadoEm; }
 }
